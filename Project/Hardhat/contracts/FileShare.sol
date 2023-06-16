@@ -104,6 +104,14 @@ contract FileShare {
         thisProvide.deviceId.push(_newDeviceId);
         thisProvide.space.push(_newspace);
         thisProvide.engage.push(false);
+
+        uint256 stake_id = ++stakes_count[msg.sender];
+        stakes_pool[msg.sender][stake_id] = Stake(
+            stake_id,
+            FIXED_STAKE,
+            block.timestamp
+        );
+
     }
 
     function makeRequestToProvider(
