@@ -35,6 +35,7 @@ contract FileShare {
         address providerAddress;
         uint256 needIdDevice;
         uint256 deviceProId;
+        uint256 timeReq;
     }
     mapping(uint => Request) public requests;
     uint256 public ReqId;
@@ -117,7 +118,8 @@ contract FileShare {
         uint256 _proId,
         uint256 _spaceReq,
         string calldata _deviceDespReq,
-        uint256 _deviceIdReq
+        uint256 _deviceIdReq,
+        uint256 _timeReq
     ) public {
         Provide storage thisProvide = providers[_proId];
         uint256 i;
@@ -127,6 +129,10 @@ contract FileShare {
                 require(
                     thisProvide.space[i] >= _spaceReq,
                     "The provider does not have enoungh space left."
+                );
+                require(
+                    thisProvide.hrs >= _timeReq,
+                    "Excedding time limit set by provider"
                 );
                 require(
                     thisProvide.deviceId[i] >= _deviceIdReq,
@@ -146,6 +152,7 @@ contract FileShare {
                     newRequest.providerAddress = thisProvide.recipient;
                     newRequest.needIdDevice = _deviceIdReq;
                     newRequest.deviceProId = _proId;
+                    newRequest.timeReq = _timeReq;
                 }
             }
         }
