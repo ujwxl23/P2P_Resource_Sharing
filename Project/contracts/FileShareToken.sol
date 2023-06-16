@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.15;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+contract FileShareToken is ERC20 {
+    constructor() ERC20("shareToken", "STK") {
+        _mint(msg.sender, 50 * 10 ** decimals());
+    }
+}
+

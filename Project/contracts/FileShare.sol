@@ -2,13 +2,31 @@
 pragma solidity ^0.8.15;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FileShare is ERC20, Ownable {
-    constructor() ERC20("shareToken", "STK") {
-        _mint(msg.sender, 50 * 10 ** decimals());
+contract FileShare {
+    uint256 public FIXED_STAKE;
+    uint256 public REWARD_PER_HOUR;
+    uint256 private constant SECONDS_IN_YEAR = 31536000; // Number of seconds in a year (365 days)
+    address private owner;
+
+    IERC20 private token;
+
+    constructor(
+        address tokenAddress,
+        uint256 _FIXED_STAKE,
+        uint256 _REWARD_PER_HOUR
+    ) {
+        token = IERC20(tokenAddress);
+        owner = msg.sender;
+        FIXED_STAKE = _FIXED_STAKE;
+        REWARD_PER_HOUR = _REWARD_PER_HOUR;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
     }
 
     struct Request {
@@ -24,6 +42,7 @@ contract FileShare is ERC20, Ownable {
         string[] deviceName;
         address payable recipient;
         uint256[] space;
+        uint256[] hrs;
         uint256 timestamp;
         bool[] engage;
     }
@@ -32,19 +51,44 @@ contract FileShare is ERC20, Ownable {
 
     uint256 public count;
 
+    struct Stake {
+        uint256 stakeId;
+        uint256 amt;
+        uint256 timeStake;
+    }
+    mapping(address => uint256) private stakes_count;
+    mapping(address => uint256) private rewards_earned;
+    mapping(address => mapping(uint256 => Stake)) private stakes_pool;
+
     function createProvide(
         string memory _description,
         string memory _deviceName,
-        uint256 _space
-    ) public payable {
+        uint256 _space,
+        uint256 _hours
+    ) public payable returns (uint256) {
         Provide storage newProvide = providers[ProId];
         ProId++;
         count = 0;
+        require(
+            token.transferFrom(msg.sender, address(this), FIXED_STAKE),
+            "Stake transfer failed"
+        );
         newProvide.description.push(_description);
         newProvide.deviceName.push(_deviceName);
         newProvide.recipient = payable(msg.sender);
         newProvide.space.push(_space);
+        newProvide.hrs.push(_hours);
         newProvide.engage.push(false);
+
+        uint256 stake_id = ++stakes_count[msg.sender];
+
+        stakes_pool[msg.sender][stake_id] = Stake(
+            stake_id,
+            FIXED_STAKE,
+            block.timestamp
+        );
+
+        return ProId;
     }
 
     function addDevicesByProvider(
