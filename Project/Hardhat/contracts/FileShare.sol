@@ -111,7 +111,6 @@ contract FileShare {
             FIXED_STAKE,
             block.timestamp
         );
-
     }
 
     function makeRequestToProvider(
@@ -120,7 +119,6 @@ contract FileShare {
         string calldata _deviceDespReq,
         uint256 _deviceIdReq
     ) public {
-        // require(raisedAmt>=targetprice);
         Provide storage thisProvide = providers[_proId];
         uint256 i;
         string storage str = (thisProvide.description)[i];
@@ -138,18 +136,22 @@ contract FileShare {
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                //approval
-                thisProvide.engage[i] = true;
-                thisProvide.timestamp = block.timestamp;
-                Request storage newRequest = requests[ReqId];
-                ReqId++;
-                newRequest.devName = _deviceDespReq;
-                newRequest.providerAddress = thisProvide.recipient;
-                newRequest.needIdDevice = _deviceIdReq;
-                newRequest.deviceProId = _proId;
+                bool approved = approval(msg.sender, _deviceIdReq);
+                if (approved == true) {
+                    thisProvide.engage[i] = true;
+                    thisProvide.timestamp = block.timestamp;
+                    Request storage newRequest = requests[ReqId];
+                    ReqId++;
+                    newRequest.devName = _deviceDespReq;
+                    newRequest.providerAddress = thisProvide.recipient;
+                    newRequest.needIdDevice = _deviceIdReq;
+                    newRequest.deviceProId = _proId;
+                }
             }
         }
     }
+
+    function approval(address requester, uint256 devId) public {}
 
     function getAllAvailableDevices(
         uint256 _proIdAvailable
