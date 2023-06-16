@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract FileShare {
     uint256 public FIXED_STAKE;
-    string public fixedStake;
     uint256 public REWARD_PER_HOUR;
     uint256 private constant SECONDS_IN_YEAR = 31536000; // Number of seconds in a year (365 days)
     address private owner;
@@ -17,14 +16,12 @@ contract FileShare {
     constructor(
         address tokenAddress,
         uint256 _FIXED_STAKE,
-        string memory _fixedStake,
         uint256 _REWARD_PER_HOUR
     ) {
         token = IERC20(tokenAddress);
         owner = msg.sender;
         FIXED_STAKE = _FIXED_STAKE;
         REWARD_PER_HOUR = _REWARD_PER_HOUR;
-        fixedStake=_fixedStake;
     }
 
     modifier onlyOwner() {
@@ -32,17 +29,19 @@ contract FileShare {
         _;
     }
 
+    //New request format
     struct Request {
-        string description;
-        address payable reqProvider;
+        string devName;
+        address providerAddress;
         uint256 needIdDevice;
+        uint256 deviceProId;
     }
     mapping(uint => Request) public requests;
     uint256 public ReqId;
 
     struct Provide {
         string[] description;
-        string[] deviceName;
+        uint256[] deviceId;
         address payable recipient;
         uint256[] space;
         uint256[] hrs;
@@ -65,24 +64,23 @@ contract FileShare {
 
     function createProvide(
         string memory _description,
-        string memory _deviceName,
+        uint256 _deviceId,
         uint256 _space,
         uint256 _hours
-    ) public returns (uint256) {
+    ) public payable returns (uint256) {
         Provide storage newProvide = providers[ProId];
         ProId++;
-        count = 0;
-        token.approve(address(this),FIXED_STAKE);
         require(
             token.transferFrom(msg.sender, address(this), FIXED_STAKE),
             "Stake transfer failed"
         );
         newProvide.description.push(_description);
-        newProvide.deviceName.push(_deviceName);
+        newProvide.deviceId.push(_deviceId);
         newProvide.recipient = payable(msg.sender);
         newProvide.space.push(_space);
         newProvide.hrs.push(_hours);
         newProvide.engage.push(false);
+
         uint256 stake_id = ++stakes_count[msg.sender];
 
         stakes_pool[msg.sender][stake_id] = Stake(
@@ -96,14 +94,14 @@ contract FileShare {
 
     function addDevicesByProvider(
         uint256 _proId,
-        string memory _newDeviceName,
+        uint256 _newDeviceId,
         uint256 _newspace,
         string memory _newDescription
     ) public {
         Provide storage thisProvide = providers[_proId];
         ++count;
         thisProvide.description.push(_newDescription);
-        thisProvide.deviceName.push(_newDeviceName);
+        thisProvide.deviceId.push(_newDeviceId);
         thisProvide.space.push(_newspace);
         thisProvide.engage.push(false);
     }
@@ -111,30 +109,36 @@ contract FileShare {
     function makeRequestToProvider(
         uint256 _proId,
         uint256 _spaceReq,
-        string calldata _deviceNameReq
+        string calldata _deviceDespReq,
+        uint256 _deviceIdReq
     ) public {
         // require(raisedAmt>=targetprice);
         Provide storage thisProvide = providers[_proId];
         uint256 i;
-        string storage str = (thisProvide.deviceName)[i];
-        for (i = 0; i < (thisProvide.deviceName).length; i++) {
-            if (compare(str, _deviceNameReq)) {
+        string storage str = (thisProvide.description)[i];
+        for (i = 0; i < (thisProvide.description).length; i++) {
+            if (compare(str, _deviceDespReq)) {
                 require(
                     thisProvide.space[i] >= _spaceReq,
                     "The provider does not have enoungh space left."
                 );
                 require(
+                    thisProvide.deviceId[i] >= _deviceIdReq,
+                    "The device Id does not match"
+                );
+                require(
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                //transferToken()
+                //approval
                 thisProvide.engage[i] = true;
                 thisProvide.timestamp = block.timestamp;
                 Request storage newRequest = requests[ReqId];
                 ReqId++;
-                newRequest.description = _deviceNameReq;
-                newRequest.reqProvider = thisProvide.recipient;
-                newRequest.needIdDevice = _proId;
+                newRequest.devName = _deviceDespReq;
+                newRequest.providerAddress = thisProvide.recipient;
+                newRequest.needIdDevice = _deviceIdReq;
+                newRequest.deviceProId = _proId;
             }
         }
     }
@@ -144,9 +148,9 @@ contract FileShare {
     ) public view returns (string[] memory availableDevices) {
         Provide storage thisProvide = providers[_proIdAvailable];
         uint index;
-        for (uint256 i = 0; i < (thisProvide.deviceName).length; i++) {
+        for (uint256 i = 0; i < (thisProvide.description).length; i++) {
             if (thisProvide.engage[i]) {
-                availableDevices[index] = (thisProvide.deviceName[i]);
+                availableDevices[index] = (thisProvide.description[i]);
             }
         }
     }
