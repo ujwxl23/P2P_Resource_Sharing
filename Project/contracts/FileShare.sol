@@ -63,7 +63,7 @@ contract FileShare {
         uint256 _deviceId,
         uint256 _space,
         uint256 _hours
-    ) public payable returns (uint256){
+    ) public returns (uint256){
         Provide storage newProvide = providers[ProId];
         ProId++;
         require(
@@ -76,7 +76,6 @@ contract FileShare {
         newProvide.space.push(_space);
         newProvide.hrs.push(_hours);
         newProvide.engage.push(false);
-
         uint256 stake_id = ++stakes_count[msg.sender];
 
         stakes_pool[msg.sender][stake_id] = Stake(
