@@ -152,7 +152,7 @@ contract FileShare {
                     newRequest.providerAddress = thisProvide.recipient;
                     newRequest.needIdDevice = _deviceIdReq;
                     newRequest.deviceProId = _proId;
-                    newRequest.timeReq = _timeReq;
+                    newRequest.timeReq = _timeReq; //New time variable in stuct requester
                 }
             }
         }
