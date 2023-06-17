@@ -53,6 +53,7 @@ contract FileShare {
     uint256 public ProId;
 
     uint256 public count;
+    uint256 stake_id;
 
     struct Stake {
         uint256 stakeId;
@@ -82,7 +83,7 @@ contract FileShare {
         newProvide.hrs.push(_hours);
         newProvide.engage.push(false);
 
-        uint256 stake_id = ++stakes_count[msg.sender];
+        stake_id = ++stakes_count[msg.sender];
 
         stakes_pool[msg.sender][stake_id] = Stake(
             stake_id,
@@ -106,7 +107,7 @@ contract FileShare {
         thisProvide.space.push(_newspace);
         thisProvide.engage.push(false);
 
-        uint256 stake_id = ++stakes_count[msg.sender];
+        stake_id = ++stakes_count[msg.sender];
         stakes_pool[msg.sender][stake_id] = Stake(
             stake_id,
             FIXED_STAKE,
@@ -131,7 +132,7 @@ contract FileShare {
                     "The provider does not have enoungh space left."
                 );
                 require(
-                    thisProvide.hrs >= _timeReq,
+                    thisProvide.hrs[i] >= _timeReq,
                     "Excedding time limit set by provider"
                 );
                 require(
@@ -142,7 +143,7 @@ contract FileShare {
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                bool approved = approval(msg.sender, _deviceIdReq, _timeReq);
+                bool approved = approval();
                 if (approved == true) {
                     thisProvide.engage[i] = true;
                     thisProvide.timestamp = block.timestamp;
@@ -158,11 +159,7 @@ contract FileShare {
         }
     }
 
-    function approval(
-        address requester,
-        uint256 devId,
-        uint256 timeRequest
-    ) public returns (bool) {
+    function approval() public pure returns (bool) {
         return true;
     }
 
@@ -172,10 +169,54 @@ contract FileShare {
         Provide storage thisProvide = providers[_proIdAvailable];
         uint index;
         for (uint256 i = 0; i < (thisProvide.description).length; i++) {
-            if (thisProvide.engage[i]) {
+            if (thisProvide.engage[i] == false) {
                 availableDevices[index] = (thisProvide.description[i]);
+                ++index;
             }
         }
+    }
+
+    function finishUseByProvider(
+        uint256 _proId,
+        uint256 _stakeId,
+        uint256 amount,
+        uint256 devId
+    ) public {
+        require(stakes_count[msg.sender] > 0, "No stake found");
+        require(
+            block.timestamp > stakes_pool[msg.sender][_stakeId].timeStake,
+            "Withdraw amount is more than balance of stake."
+        );
+        Provide storage thisProvide = providers[_proId];
+        uint256 i;
+        for (i = 0; i < (thisProvide.deviceId).length; i++) {
+            if (thisProvide.deviceId[i] == devId) {
+                thisProvide.engage[i] = false;
+            }
+        }
+        uint256 reward = calRewardPerDevice(msg.sender, _stakeId);
+
+        rewards_earned[msg.sender] += reward;
+
+        uint256 newAmount = stakes_pool[msg.sender][_stakeId].amt - amount;
+        stakes_pool[msg.sender][_stakeId] = Stake(
+            _stakeId,
+            newAmount,
+            block.timestamp
+        );
+
+        require(token.transfer(msg.sender, amount), "Stake withdrawal failed");
+    }
+
+    function calRewardPerDevice(
+        address _provider,
+        uint256 _stakeId
+    ) public view returns (uint256) {
+        uint256 amount = stakes_pool[_provider][_stakeId].amt;
+        uint256 timestamp = stakes_pool[_provider][_stakeId].timeStake;
+        uint256 timeElapsed = block.timestamp - timestamp;
+
+        return (amount * timeElapsed) / (100 * SECONDS_IN_YEAR);
     }
 
     function compare(
@@ -191,6 +232,5 @@ contract FileShare {
     }
 
     // function finishUse();
-    // function approveRequestorUse();
     // function proStop();
 }
