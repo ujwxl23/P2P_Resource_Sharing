@@ -142,7 +142,7 @@ contract FileShare {
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                bool approved = approval(msg.sender, _deviceIdReq);
+                bool approved = approval(msg.sender, _deviceIdReq, _timeReq);
                 if (approved == true) {
                     thisProvide.engage[i] = true;
                     thisProvide.timestamp = block.timestamp;
@@ -158,7 +158,13 @@ contract FileShare {
         }
     }
 
-    function approval(address requester, uint256 devId) public {}
+    function approval(
+        address requester,
+        uint256 devId,
+        uint256 timeRequest
+    ) public returns (bool) {
+        return true;
+    }
 
     function getAllAvailableDevices(
         uint256 _proIdAvailable
