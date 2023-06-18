@@ -8,6 +8,7 @@ import Web3Modal from "web3modal";
 function App() {
   const [des, setDes] = useState("");
   const [deviceId, setDeviceId] = useState("");
+  const [providerId, setProviderId] = useState("");
   const [memory, setMemory] = useState("");
   const [duration, setDuration] = useState("");
   const [deviceRequestId, setDeviceRequestId] = useState("");
@@ -42,6 +43,12 @@ function App() {
     }
   }
 
+
+  const addNewDevice = async () => {
+     const signer = await getProviderOrSigner(true);
+    const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+    
+  }
   const requestProvider = async () => {
           console.log("proId");
 
@@ -122,11 +129,12 @@ function App() {
         <div class="left-side">
     
           <div class="details">
-            {/* <div class="detail-item">
-        <button class="get-button" onClick={getOwner}>Get Owner</button>
-        <div class="detail"><b>{owner}</b>   Public Key Of Owner</div>
+             <div class="detail-item">
+        <button class="get-button" >Get All Available devices of a Provider</button>
+        <div class="detail">All available devices of a provider</div>
+        <input placeholder="Provider ID"></input>
       </div>
-          <div class="detail-item">
+          {/*<div class="detail-item">
         <button class="get-button" onClick={getRewards}>Get Rewards</button>
         <div class="detail">{rewards==0?"":rewards+" Token"}</div>
       </div>
@@ -159,17 +167,25 @@ function App() {
             <a href="#"><h5></h5></a>
           </div>
         </div>
-      
         <div class="right-side">
           <h2></h2>
           <div>
             <div class="input-bar">
               <label>Create/Register Provider</label>
               <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
-              <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
-              <input type="text" placeholder="memory of syatem" className="clear" onChange={(e) => setMemory(e.target.value)} />
+              <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="memory of system" className="clear" onChange={(e) => setMemory(e.target.value)} />
               <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
               <button type="submit" onClick={createProvider}>CreateProvider</button>
+            </div>
+                 <div class="input-bar">
+              <label>Add New Device </label>
+              <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
+              <input type="text" placeholder="New Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="memory of system" className="clear" onChange={(e) => setMemory(e.target.value)} />
+              <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
+              <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
+              <button type="submit" onClick={createProvider}>Add New Device</button>
             </div>
                  <div class="input-bar">
               <label>Request Provider</label>
