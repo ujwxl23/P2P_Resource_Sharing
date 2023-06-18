@@ -45,8 +45,13 @@ function App() {
 
 
   const addNewDevice = async () => {
-     const signer = await getProviderOrSigner(true);
-    const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+     try{const signer = await getProviderOrSigner(true);
+       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+       const tx=await contract.addDevicesByProvider(Number(providerId), Number(deviceId), Number(memory), des);
+       await tx.wait();
+     } catch (e) {
+       console.log(e);
+    }
     
   }
   const requestProvider = async () => {
@@ -184,8 +189,7 @@ function App() {
               <input type="text" placeholder="New Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
               <input type="text" placeholder="memory of system" className="clear" onChange={(e) => setMemory(e.target.value)} />
               <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
-              <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
-              <button type="submit" onClick={createProvider}>Add New Device</button>
+              <button type="submit" onClick={addNewDevice}>Add New Device</button>
             </div>
                  <div class="input-bar">
               <label>Request Provider</label>
