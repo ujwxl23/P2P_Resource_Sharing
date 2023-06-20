@@ -27,14 +27,14 @@ function App() {
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
       const amountWei = utils.parseEther(amountStake.toString());
-      console.log(amountWei);
+      console.log((amountWei).toString());
       let tx = await tokenContract.approve(
         CONTRACT_ADDRESS,
         amountWei.toString()
       );
       setLoading(true);
       await tx.wait();
-      tx = await contract.createProvide(des, Number(deviceId), Number(memory), Number(duration));
+      tx = await contract.createProvide(des, (deviceId), (memory), (duration));
       await tx.wait();
       setLoading(false);
       window.alert("Transaction successful");

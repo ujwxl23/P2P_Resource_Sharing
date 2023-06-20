@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x478bAA1b7c7D79eeADC5E37180A81BBf63a11e05";
+export const CONTRACT_ADDRESS = "0x6D222aE79B293CFDB7A0f1800aa8743284b9443D";
 export const abi = [
     {
       "inputs": [
@@ -126,7 +126,7 @@ export const abi = [
       ],
       "name": "approve",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -202,7 +202,7 @@ export const abi = [
       ],
       "name": "createProvide",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -477,7 +477,7 @@ export const abi = [
       ],
       "name": "unapprove",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ];
