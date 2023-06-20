@@ -5,7 +5,6 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
-require("@nomiclabs/hardhat-etherscan");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -19,7 +18,7 @@ async function main() {
   
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0x535Da441Dd81Db80860CDf3E802eb590049439C9
+    console.log("Contract Address", contract.address);//0x478bAA1b7c7D79eeADC5E37180A81BBf63a11e05
     
 
     console.log("Sleeping.....");
