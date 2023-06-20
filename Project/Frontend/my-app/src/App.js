@@ -27,15 +27,21 @@ function App() {
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
       const amountWei = utils.parseEther(amountStake.toString());
-      console.log((amountWei).toString());
-      let tx = await tokenContract.approve(
+      console.log(amountWei);
+      const tx = await tokenContract.approve(
         CONTRACT_ADDRESS,
         amountWei.toString()
       );
+      console.log(contract.address);
       setLoading(true);
       await tx.wait();
-      tx = await contract.createProvide(des, (deviceId), (memory), (duration));
-      await tx.wait();
+      console.log("des:", des, typeof (des));
+      console.log("id:", Number(deviceId), typeof (Number(deviceId)));
+      console.log("memory:", Number(memory), typeof (Number(memory)));
+      console.log("durstion:", Number(duration), typeof (Number(duration)));
+      const tr = await contract.estimateGas.createProvide(des, Number(deviceId), Number(memory), Number(duration));
+      console.log(tr);  
+      await tr.wait();
       setLoading(false);
       window.alert("Transaction successful");
 
