@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0xcFed2b98Db14657C088Eaef6B9983769e891453e";
+export const CONTRACT_ADDRESS = "0x478bAA1b7c7D79eeADC5E37180A81BBf63a11e05";
 export const abi = [
     {
       "inputs": [
@@ -91,6 +91,11 @@ export const abi = [
           "type": "uint256"
         },
         {
+          "internalType": "uint256",
+          "name": "_newTime",
+          "type": "uint256"
+        },
+        {
           "internalType": "string",
           "name": "_newDescription",
           "type": "string"
@@ -99,6 +104,53 @@ export const abi = [
       "name": "addDevicesByProvider",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_devId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_proId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_reqId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_provider",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_stakeId",
+          "type": "uint256"
+        }
+      ],
+      "name": "calRewardPerDevice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -126,19 +178,6 @@ export const abi = [
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "count",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "string",
@@ -162,6 +201,109 @@ export const abi = [
         }
       ],
       "name": "createProvide",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_proId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_stakeId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "devId",
+          "type": "uint256"
+        }
+      ],
+      "name": "finishUseByProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllAvailableDevices",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_reqId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getRequesterDetails",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "staker",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stakeId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getStakeAmount",
       "outputs": [
         {
           "internalType": "uint256",
@@ -169,23 +311,28 @@ export const abi = [
           "type": "uint256"
         }
       ],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "staker",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "_proIdAvailable",
+          "name": "stakeId",
           "type": "uint256"
         }
       ],
-      "name": "getAllAvailableDevices",
+      "name": "getStakeTimestamp",
       "outputs": [
         {
-          "internalType": "string[]",
-          "name": "availableDevices",
-          "type": "string[]"
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -212,6 +359,11 @@ export const abi = [
           "internalType": "uint256",
           "name": "_deviceIdReq",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_timeReq",
+          "type": "uint256"
         }
       ],
       "name": "makeRequestToProvider",
@@ -229,6 +381,11 @@ export const abi = [
       ],
       "name": "providers",
       "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
         {
           "internalType": "address payable",
           "name": "recipient",
@@ -260,6 +417,11 @@ export const abi = [
         },
         {
           "internalType": "address",
+          "name": "requesterAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "providerAddress",
           "type": "address"
         },
@@ -272,9 +434,50 @@ export const abi = [
           "internalType": "uint256",
           "name": "deviceProId",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timeReq",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_proIdAvailable",
+          "type": "uint256"
+        }
+      ],
+      "name": "storeAllAvailableDevices",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_devId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_proId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_reqId",
+          "type": "uint256"
+        }
+      ],
+      "name": "unapprove",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     }
   ];

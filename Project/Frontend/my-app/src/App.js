@@ -18,6 +18,7 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [amountStake, setAmountStake] = useState(5);
   const [loading, setLoading] = useState("false");
+  const [requestId,setRequestId]=useState("");
 
 
   async function createProvider() {
@@ -45,37 +46,46 @@ function App() {
 
 
   const addNewDevice = async () => {
+    //  uint256 _proId,
+    //     uint256 _newDeviceId,
+    //     uint256 _newspace,
+    //     uint256 _newTime,
+    //     string memory _newDescription
      try{const signer = await getProviderOrSigner(true);
        const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
-       const tx=await contract.addDevicesByProvider(Number(providerId), Number(deviceId), Number(memory), des);
+       const tx=await contract.addDevicesByProvider(Number(providerId), Number(deviceId), Number(memory),Number(duration), des);
        await tx.wait();
      } catch (e) {
        console.log(e);
     }
     
   }
+
   const requestProvider = async () => {
           console.log("proId");
 
     try{const signer = await getProviderOrSigner(true);
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
-      console.log('------------------------------------');
-      console.log(contract);
-      console.log('------------------------------------');
-      // const proId = await contract.ProId();
       console.log(contract.address);
-    // const tx = await contract.makeRequestToProvider(proId, Number(requiredMemory), des, Number(deviceRequestId), Number(requiredDuration));
-    // await tx.wait();
-    //         const reqId = Number((await contract.ReqId()).toString()) - 1;
-    // const request = await contract.requests(reqId);
-    // console.log('------------------------------------');
+    const tx = await contract.makeRequestToProvider(Number(providerId), Number(requiredMemory), des, Number(deviceRequestId), Number(requiredDuration));
+    await tx.wait();
+    // const request = await contract.getRequestDetails(requestId);
     // console.log(request);
-    //   console.log('------------------------------------');
     }
     catch (e) {
       console.log(e);
     }
     
+  }
+  const getRequestDetails = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data =await contract.getRequesterDetails(requestId);
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
   }
   const connectWallet = async () => {
     try {
@@ -139,11 +149,12 @@ function App() {
         <div class="detail">All available devices of a provider</div>
         <input placeholder="Provider ID"></input>
       </div>
-          {/*<div class="detail-item">
-        <button class="get-button" onClick={getRewards}>Get Rewards</button>
-        <div class="detail">{rewards==0?"":rewards+" Token"}</div>
-      </div>
           <div class="detail-item">
+              <button class="get-button" onClick={getRequestDetails}>Get Request Detail</button>
+              <input placeholder="Request ID" onChange={(e)=> (e.target.value)}></input>
+        <div class="detail">Console</div>
+      </div>
+          {/*<div class="detail-item">
         <button class="get-button">Instant Withdrawl</button>
         <div class="detail">{instantWithdrawl?"Allowed":` Minimum ${stakingTime} days`}</div>
           </div>
@@ -188,6 +199,7 @@ function App() {
               <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
               <input type="text" placeholder="New Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
               <input type="text" placeholder="memory of system" className="clear" onChange={(e) => setMemory(e.target.value)} />
+              <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
               <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
               <button type="submit" onClick={addNewDevice}>Add New Device</button>
             </div>
