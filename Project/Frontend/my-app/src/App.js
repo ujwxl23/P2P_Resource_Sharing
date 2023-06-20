@@ -67,7 +67,16 @@ function App() {
     try{const signer = await getProviderOrSigner(true);
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       console.log(contract.address);
-    const tx = await contract.makeRequestToProvider(Number(providerId), Number(requiredMemory), des, Number(deviceRequestId), Number(requiredDuration));
+       const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
+      const amountWei = utils.parseEther("5");
+       console.log(amountWei);
+      let tx = await tokenContract.approve(
+        CONTRACT_ADDRESS,
+        amountWei.toString()
+      );
+      setLoading(true);
+      await tx.wait();
+     tx = await contract.makeRequestToProvider(Number(providerId), Number(requiredMemory), des, Number(deviceRequestId), Number(requiredDuration));
     await tx.wait();
     // const request = await contract.getRequestDetails(requestId);
     // console.log(request);
@@ -81,7 +90,7 @@ function App() {
     try {
       const provider = await getProviderOrSigner();
       const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
-      const data =await contract.getRequesterDetails(requestId);
+      const data =await contract.getRequesterDetails(Number(requestId));
       console.log(data);
     } catch (e) {
       console.log(e);
