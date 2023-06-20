@@ -5,6 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+require("@nomiclabs/hardhat-etherscan");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -18,19 +19,19 @@ async function main() {
   
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0xcFed2b98Db14657C088Eaef6B9983769e891453e
+    console.log("Contract Address", contract.address);//0x535Da441Dd81Db80860CDf3E802eb590049439C9
     
 
     // console.log("Sleeping.....");
   // Wait for etherscan to notice that the contract has been deployed
   // await sleep(40000);
 
-  // // Verify the contract after deploying
-  // await hre.run("verify:verify", {
-  //   address: contract.address,
-  //     constructorArguments: [],
-  //   contract: "contracts/FileShareToken.sol:FileShareToken"
-  // });
+  // Verify the contract after deploying
+  await hre.run("verify:verify", {
+    address: contract.address,
+      constructorArguments: [],
+    contract: "contracts/FileShare.sol:FileShare"
+  });
 }
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

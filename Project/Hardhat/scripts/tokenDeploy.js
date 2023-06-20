@@ -8,24 +8,24 @@ const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-    console.log("Deploying contracts with the account:", deployer.address);
+  //   console.log("Deploying contracts with the account:", deployer.address);
 
-  const TokenContract=await hre.ethers.getContractFactory("FileShareToken");
+  // const TokenContract=await hre.ethers.getContractFactory("FileShareToken");
 
 
-  const contract=await TokenContract.deploy();
-  await contract.deployed();
+  // const contract=await TokenContract.deploy();
+  // await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0xeFC56F2CA2d8Cb20878a08c6Cc2D9942BEA9C58a
+  //   console.log("Contract Address", contract.address);//0x535Da441Dd81Db80860CDf3E802eb590049439C9
     
 
     console.log("Sleeping.....");
   // Wait for etherscan to notice that the contract has been deployed
-  await sleep(40000);
+  // await sleep(40000);
 
   // Verify the contract after deploying
   await hre.run("verify:verify", {
-    address: "0xeFC56F2CA2d8Cb20878a08c6Cc2D9942BEA9C58a",
+    address:"0x535Da441Dd81Db80860CDf3E802eb590049439C9" ,
       constructorArguments: [],
     contract: "contracts/FileShareToken.sol:FileShareToken"
   });
