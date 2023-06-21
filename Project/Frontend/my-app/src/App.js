@@ -39,7 +39,7 @@ function App() {
       console.log("id:", Number(deviceId), typeof (Number(deviceId)));
       console.log("memory:", Number(memory), typeof (Number(memory)));
       console.log("durstion:", Number(duration), typeof (Number(duration)));
-      const tr = await contract.estimateGas.createProvide(des, Number(deviceId), Number(memory), Number(duration));
+      const tr = await contract.createProvide(des, Number(deviceId), Number(memory), Number(duration));
       console.log(tr);  
       await tr.wait();
       setLoading(false);
@@ -82,6 +82,11 @@ function App() {
       );
       setLoading(true);
       await tx.wait();
+      console.log("ID", providerId);
+      console.log("memory", requiredMemory);
+      console.log("des", des);
+      console.log("ID", deviceRequestId);
+      console.log("ID", requiredDuration);
      tx = await contract.makeRequestToProvider(Number(providerId), Number(requiredMemory), des, Number(deviceRequestId), Number(requiredDuration));
     await tx.wait();
     // const request = await contract.getRequestDetails(requestId);
@@ -220,9 +225,9 @@ function App() {
             </div>
                  <div class="input-bar">
               <label>Request Provider</label>
-              <input type="text" placeholder="Required Provider ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
               <input type="text" placeholder="Description" className="clear" onChange={(e) => setDes(e.target.value)} />
-              <input type="text" placeholder="Your Device ID" className="clear" onChange={(e) => setDeviceRequestId(e.target.value)} />
+              <input type="text" placeholder="Provider Device ID" className="clear" onChange={(e) => setDeviceRequestId(e.target.value)} />
               <input type="text" placeholder="memory Required" className="clear" onChange={(e) => setRequiredMemory(e.target.value)} />
               <input type="text" placeholder="time required" className="clear" onChange={(e) => setRequiredDuration(e.target.value)} />
               <button type="submit" onClick={requestProvider}>CreateProvider</button>

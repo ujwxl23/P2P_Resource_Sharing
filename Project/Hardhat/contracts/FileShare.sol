@@ -143,14 +143,7 @@ contract FileShare {
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                  require(
-                    token.transferFrom(
-                        msg.sender,
-                        address(this),
-                        FIXED_STAKE
-                    ),
-                    "Payemnt unsuccessful"
-                );
+              
                 Request storage newRequest = requests[ReqId];
                 ReqId++;
                 newRequest.devName = _deviceDespReq;
@@ -159,6 +152,7 @@ contract FileShare {
                 newRequest.needIdDevice = _deviceIdReq;
                 newRequest.deviceProId = _proId;
                 newRequest.timeReq = _timeReq; //New time variable in stuct requester
+                break;
             }
         }
     }

@@ -18,7 +18,7 @@ async function main() {
   
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0x478bAA1b7c7D79eeADC5E37180A81BBf63a11e05
+    console.log("Contract Address", contract.address);//0x6D222aE79B293CFDB7A0f1800aa8743284b9443D
     
 
     console.log("Sleeping.....");

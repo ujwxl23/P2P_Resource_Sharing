@@ -481,7 +481,7 @@ export const abi = [
       "type": "function"
     }
   ];
-export const token_Contract_Address = "0xeFC56F2CA2d8Cb20878a08c6Cc2D9942BEA9C58a";
+export const token_Contract_Address = "0x535Da441Dd81Db80860CDf3E802eb590049439C9";
 export const tokenABI = [
     {
       "inputs": [],
