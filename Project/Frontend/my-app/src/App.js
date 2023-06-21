@@ -173,6 +173,11 @@ function App() {
               <button class="get-button" onClick={getRequestDetails}>Get Request Detail</button>
               <input placeholder="Request ID" onChange={(e)=> (e.target.value)}></input>
         <div class="detail">Console</div>
+            </div>
+              <div class="detail-item">
+              <button class="get-button" onClick={get}>Get Request Detail</button>
+              <input placeholder="Request ID" onChange={(e)=> (e.target.value)}></input>
+        <div class="detail">Console</div>
       </div>
           {/*<div class="detail-item">
         <button class="get-button">Instant Withdrawl</button>
