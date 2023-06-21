@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x6D222aE79B293CFDB7A0f1800aa8743284b9443D";
+export const CONTRACT_ADDRESS = "0xACD8A5703c2a62DeC7a9861960033e6A2e457528";
 export const abi = [
     {
       "inputs": [
@@ -219,11 +219,6 @@ export const abi = [
         },
         {
           "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
           "name": "devId",
           "type": "uint256"
         }
@@ -236,6 +231,19 @@ export const abi = [
     {
       "inputs": [],
       "name": "getAllAvailableDevices",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBusyDevices",
       "outputs": [
         {
           "internalType": "string[]",
@@ -452,7 +460,7 @@ export const abi = [
           "type": "uint256"
         }
       ],
-      "name": "storeAllAvailableDevices",
+      "name": "storeAllDevices",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

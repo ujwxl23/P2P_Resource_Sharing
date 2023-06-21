@@ -143,14 +143,6 @@ contract FileShare {
                     thisProvide.engage[i] == false,
                     "The provider is already busy, no resources available."
                 );
-                  require(
-                    token.transferFrom(
-                        msg.sender,
-                        address(this),
-                        FIXED_STAKE
-                    ),
-                    "Payemnt unsuccessful"
-                );
                 Request storage newRequest = requests[ReqId];
                 ReqId++;
                 newRequest.devName = _deviceDespReq;
@@ -181,7 +173,16 @@ contract FileShare {
                     "The provider is already busy, no resources available."
                 );
                 thisProvide.engage[i] = true;
-                thisProvide.timestamp = block.timestamp;              
+                thisProvide.timestamp = block.timestamp;
+                Request storage thisRequest = requests[_reqId];
+                require(
+                    token.transferFrom(
+                        thisRequest.requesterAddress,
+                        address(this),
+                        thisProvide.hrs[i]
+                    ),
+                    "Payemnt unsuccessful"
+                );
             }
         }
     }
@@ -209,8 +210,9 @@ contract FileShare {
     }
 
     string[] availableDevices;
+    string[] busyDevices;
 
-    function storeAllAvailableDevices(uint256 _proIdAvailable) public {
+    function storeAllDevices(uint256 _proIdAvailable) public {
         Provide storage thisProvide = providers[_proIdAvailable];
         for (uint256 j = 0; j < availableDevices.length; j++) {
             availableDevices.pop();
@@ -218,12 +220,18 @@ contract FileShare {
         for (uint256 i = 0; i < (thisProvide.description).length; i++) {
             if (thisProvide.engage[i] == false) {
                 availableDevices.push((thisProvide.description[i]));
+            } else {
+                busyDevices.push((thisProvide.description[i]));
             }
         }
     }
 
     function getAllAvailableDevices() public view returns (string[] memory) {
         return (availableDevices);
+    }
+
+    function getBusyDevices() public view returns (string[] memory) {
+        return (busyDevices);
     }
 
     function getRequesterDetails(
@@ -243,13 +251,16 @@ contract FileShare {
     function finishUseByProvider(
         uint256 _proId,
         uint256 _stakeId,
-        uint256 amount,
         uint256 devId
     ) public {
         require(stakes_count[msg.sender] > 0, "No stake found");
         require(
             block.timestamp > stakes_pool[msg.sender][_stakeId].timeStake,
             "Time period has not elapsed."
+        );
+        require(
+            stakes_pool[msg.sender][_stakeId].amt > 0,
+            "Reward alredy withdrawn"
         );
         Provide storage thisProvide = providers[_proId];
         uint256 i;
@@ -260,16 +271,13 @@ contract FileShare {
         }
         uint256 reward = calRewardPerDevice(msg.sender, _stakeId);
 
-        rewards_earned[msg.sender] += reward;
+        rewards_earned[msg.sender] =
+            reward -
+            stakes_pool[msg.sender][_stakeId].amt;
 
-        uint256 newAmount = stakes_pool[msg.sender][_stakeId].amt - amount;
-        stakes_pool[msg.sender][_stakeId] = Stake(
-            _stakeId,
-            newAmount,
-            block.timestamp
-        );
+        stakes_pool[msg.sender][_stakeId] = Stake(_stakeId, 0, block.timestamp);
 
-        require(token.transfer(msg.sender, amount), "Stake withdrawal failed");
+        require(token.transfer(msg.sender, reward), "Stake withdrawal failed");
     }
 
     function calRewardPerDevice(
@@ -279,8 +287,9 @@ contract FileShare {
         uint256 amount = stakes_pool[_provider][_stakeId].amt;
         uint256 timestamp = stakes_pool[_provider][_stakeId].timeStake;
         uint256 timeElapsed = block.timestamp - timestamp;
+        uint256 noOfHours = timeElapsed / 3600;
 
-        return (amount * timeElapsed) / (100 * SECONDS_IN_YEAR);
+        return (amount + (noOfHours * REWARD_PER_HOUR));
     }
 
     function getStakeAmount(

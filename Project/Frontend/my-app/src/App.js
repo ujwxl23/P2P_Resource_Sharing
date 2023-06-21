@@ -18,7 +18,11 @@ function App() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [amountStake, setAmountStake] = useState(5);
   const [loading, setLoading] = useState("false");
-  const [requestId,setRequestId]=useState("");
+  const [requestId, setRequestId] = useState("");
+  const [totalProvider, setTotalProvider] = useState("");
+    const [totalRequests, setTotalRequests] = useState("");
+
+  
 
 
   async function createProvider() {
@@ -70,7 +74,8 @@ function App() {
   const requestProvider = async () => {
           console.log("proId");
 
-    try{const signer = await getProviderOrSigner(true);
+    try {
+      const signer = await getProviderOrSigner(true);
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       console.log(contract.address);
        const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
@@ -107,6 +112,38 @@ function App() {
       console.log(e);
     }
   }
+    const getTotalProvider = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data =(await contract.ProId()).toString();
+      setTotalProvider(data);
+    } catch (e) {
+      console.log(e);
+    }
+    }
+    const getTotalRequests = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data =(await contract.ReqId()).toString();
+      setTotalRequests(data);
+    } catch (e) {
+      console.log(e);
+    }
+    }
+  const approveRequest = async () => {
+    try {
+       const signer = await getProviderOrSigner(true);
+      const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      console.log(contract.address);
+      const tx = await contract.approve(Number(deviceRequestId), Number(providerId), Number(requestId));
+      await tx.wait();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  
   const connectWallet = async () => {
     try {
       // Get the provider from web3Modal, which in our case is MetaMask
@@ -171,13 +208,16 @@ function App() {
       </div>
           <div class="detail-item">
               <button class="get-button" onClick={getRequestDetails}>Get Request Detail</button>
-              <input placeholder="Request ID" onChange={(e)=> (e.target.value)}></input>
+              <input placeholder="Request ID" onChange={(e)=> setRequestId(e.target.value)}></input>
         <div class="detail">Console</div>
             </div>
               <div class="detail-item">
-              <button class="get-button" onClick={get}>Get Request Detail</button>
-              <input placeholder="Request ID" onChange={(e)=> (e.target.value)}></input>
-        <div class="detail">Console</div>
+              <button class="get-button" onClick={getTotalRequests}>Get Total request</button>
+        <div class="detail">{totalRequests}</div>
+            </div>
+              <div class="detail-item">
+              <button class="get-button" onClick={getTotalProvider}>Get Total Provider</button>
+        <div class="detail">{totalProvider}</div>
       </div>
           {/*<div class="detail-item">
         <button class="get-button">Instant Withdrawl</button>
@@ -235,7 +275,14 @@ function App() {
               <input type="text" placeholder="Provider Device ID" className="clear" onChange={(e) => setDeviceRequestId(e.target.value)} />
               <input type="text" placeholder="memory Required" className="clear" onChange={(e) => setRequiredMemory(e.target.value)} />
               <input type="text" placeholder="time required" className="clear" onChange={(e) => setRequiredDuration(e.target.value)} />
-              <button type="submit" onClick={requestProvider}>CreateProvider</button>
+              <button type="submit" onClick={requestProvider}>Request Provider</button>
+            </div>
+              <div class="input-bar">
+              <label>Approve Request</label>
+              <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
+              <input type="text" placeholder="Provider Device ID" className="clear" onChange={(e) => setDeviceRequestId(e.target.value)} />
+              <input type="text" placeholder="Request Id" className="clear" onChange={(e) => setRequestId(e.target.value)} />
+              <button type="submit" onClick={approveRequest}>Approve Request</button>
             </div>
             {/*<div class="input-bar">
           string memory _description,
