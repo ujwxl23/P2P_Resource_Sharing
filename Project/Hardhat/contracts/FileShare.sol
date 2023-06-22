@@ -27,6 +27,7 @@ contract FileShare {
         string description;
         uint256 space;
         uint256 hrs;
+        uint256 idDev;
         uint256 tokenRate;
         address recipient;
         bool engage;
@@ -37,16 +38,33 @@ contract FileShare {
 
     string[] allDevices;
 
+    struct Stake {
+        uint256 stakeId;
+        uint256 amt;
+        uint256 timeStake;
+    }
+
+    uint256 stake_id;
+    mapping(address => uint256) private stakes_count;
+    mapping(address => uint256) private rewards_earned;
+    mapping(address => mapping(uint256 => Stake)) private stakes_pool;
+
+  event DeviceAdded (
+        uint256 indexed idOfDevice,
+        uint256 indexed idOfStake
+    );
+
     function addDevice(
         string memory _description,
         uint256 _space,
         uint256 _hrs,
         uint256 _tokenrate
-    ) public returns (uint256) {
+    ) public {
         Provide memory newProvide = Provide(
             _description,
             _space,
             _hrs,
+            deviceID,
             _tokenrate,
             msg.sender,
             false
@@ -59,14 +77,24 @@ contract FileShare {
             _description,
             _space,
             _hrs,
+            deviceID,
             _tokenrate,
             msg.sender,
             false
         );
-        deviceID++;
         deviceDetails[deviceID].push(newDevice);
 
-        return deviceID;
+        stake_id = ++stakes_count[msg.sender];
+
+        stakes_pool[msg.sender][stake_id] = Stake(
+            stake_id,
+            FIXED_STAKE,
+            block.timestamp
+        );
+
+        emit DeviceAdded(deviceID, stake_id);
+        deviceID++;
+
     }
 
     function getAllDevices() public view returns (string[] memory devices) {
@@ -119,7 +147,17 @@ contract FileShare {
             keccak256(abi.encodePacked(str2));
     }
 
-    function removeDevice(uint256 _deviceID) public {
+    function removeDevice(uint256 _deviceID, uint256 _stakeId) public {
+        require(stakes_count[msg.sender] > 0, "No stake found");
+        require(
+            block.timestamp > stakes_pool[msg.sender][_stakeId].timeStake,
+            "Time period has not elapsed."
+        );
+        require(
+            stakes_pool[msg.sender][_stakeId].amt > 0,
+            "Reward alredy withdrawn"
+        );
+
         Provide[] storage thisDevice = deviceDetails[_deviceID];
 
         for (uint256 i = 0; i < thisDevice.length; i++) {
@@ -144,7 +182,20 @@ contract FileShare {
                 delete thisDevice[i];
             }
         }
+
+        stakes_pool[msg.sender][_stakeId] = Stake(_stakeId, 0, block.timestamp);
+        require(
+            token.transferFrom(address(this), msg.sender, FIXED_STAKE),
+            "Stake transfer failed"
+        );
     }
+
+    struct Request {
+        uint256 devID;
+        uint256 hrsToStake;
+    }
+    mapping(uint256 => Request[]) public requesters;
+    uint256 reqCount;
 }
 
 //     struct Provide {

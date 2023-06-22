@@ -8,26 +8,70 @@ const { utils } = require("ethers");
 
 describe("FileShare", function () {
   it("should add device", async () => {
-     const [owner,acc1]=await ethers.getSigners();
+     const [owner,acc1,acc2]=await ethers.getSigners();
  const token=await ethers.getContractFactory("FileShareToken");
     const tokenContract = await token.deploy();
     const file = await ethers.getContractFactory("FileShare");
     const fixedStake = utils.parseUnits("5");
     const fileContract = await file.deploy(await tokenContract.address,fixedStake);
     const contractAddress = fileContract.address;
-    console.log(contractAddress);
+    // // console.log(contractAddress);
+    // await fileContract.addDevice("Intel", 30, 10, 1);
+    //     // await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
+    // await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    //     await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
 
+
+    // const data = await fileContract.getAllDevices();
+    // // console.log(data)
+    // const device = await fileContract.connect(acc1).getDeviceByProvider();
+    // // console.log(device)
+    // //  await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
     await fileContract.addDevice("Intel", 30, 10, 1);
-        await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
-        await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
+    const device1 = await fileContract.getDeviceByDeviceID(0);
+    const device2 = await fileContract.getDeviceByDeviceID(1);
+    const device3 = await fileContract.getDeviceByDeviceID(2);
+    console.log("For 0",device1);
+    console.log("For 1", device2);
+    console.log("For 2", device3);
+    
 
-    const data = await fileContract.getAllDevices();
-    console.log(data)
-    const device = await fileContract.getDeviceByProvider();
-    console.log(device)
-     await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
-    const device2 = await fileContract.getDeviceByDeviceID();
-    console.log(device2);
+  });
+    it("should  Remove device", async () => {
+     const [owner,acc1,acc2]=await ethers.getSigners();
+ const token=await ethers.getContractFactory("FileShareToken");
+    const tokenContract = await token.deploy();
+    const file = await ethers.getContractFactory("FileShare");
+    const fixedStake = utils.parseUnits("5");
+    const fileContract = await file.deploy(await tokenContract.address,fixedStake);
+    const contractAddress = fileContract.address;
+    // // console.log(contractAddress);
+    // await fileContract.addDevice("Intel", 30, 10, 1);
+    //     // await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
+    // await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    //     await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
+
+
+    // const data = await fileContract.getAllDevices();
+    // // console.log(data)
+    // const device = await fileContract.connect(acc1).getDeviceByProvider();
+    // // console.log(device)
+    // //  await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
+    await fileContract.addDevice("Intel", 30, 10, 1);
+    await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
+    const device1 = await fileContract.getDeviceByDeviceID(0);
+    const device2 = await fileContract.connect(acc1).getDeviceByDeviceID(1);
+    const device3 = await fileContract.connect(acc2).getDeviceByDeviceID(2);
+    // console.log("For 0", device1);
+    // console.log("For 1", device2);
+      // console.log("For 2", device3);
+      let device = await fileContract.getDeviceByProvider();
+      const data = await fileContract.removeDevice(0, 1);
+       device = await fileContract.getDeviceByProvider();
+      console.log(device);
   });
 
   
