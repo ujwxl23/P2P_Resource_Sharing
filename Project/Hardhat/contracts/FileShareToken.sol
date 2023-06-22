@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract FileShareToken is ERC20 {
     constructor() ERC20("shareToken", "STK") {
-        _mint(msg.sender, 50 * 10 ** decimals());
+        _mint(msg.sender, 5000 * 10 ** decimals());
     }
 }
 

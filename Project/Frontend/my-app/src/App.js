@@ -20,56 +20,64 @@ function App() {
   const [loading, setLoading] = useState("false");
   const [requestId, setRequestId] = useState("");
   const [totalProvider, setTotalProvider] = useState("");
+  const [Price_per_hour, setPrice] = useState("");
     const [totalRequests, setTotalRequests] = useState("");
+  const [allDevices,setAllDevices]=useState("");
+    const [deviceDetail,setDeviceDetail] = useState();
 
-  
 
 
-  async function createProvider() {
+  async function addDevice() {
     try {
       const signer = await getProviderOrSigner(true);
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
-      const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
-      const amountWei = utils.parseEther(amountStake.toString());
-      console.log(amountWei);
-      const tx = await tokenContract.approve(
-        CONTRACT_ADDRESS,
-        amountWei.toString()
-      );
-      console.log(contract.address);
-      setLoading(true);
+      const tx=await contract.addDevice(des,Number(memory),Number(duration),Number(Price_per_hour));
       await tx.wait();
-      console.log("des:", des, typeof (des));
-      console.log("id:", Number(deviceId), typeof (Number(deviceId)));
-      console.log("memory:", Number(memory), typeof (Number(memory)));
-      console.log("durstion:", Number(duration), typeof (Number(duration)));
-      const tr = await contract.createProvide(des, Number(deviceId), Number(memory), Number(duration));
-      console.log(tr);  
-      await tr.wait();
-      setLoading(false);
-      window.alert("Transaction successful");
-
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  const getAllDevices = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data = await contract.getAllDevices();
+      let devices="";
+      for (let i = 0; i < data.length; i++){
+        devices = devices +"\""+ data[i] +"\""+ "  " ;
+      }
+      setAllDevices(devices);
     } catch (e) {
       console.log(e);
     }
   }
 
-
-  const addNewDevice = async () => {
-    //  uint256 _proId,
-    //     uint256 _newDeviceId,
-    //     uint256 _newspace,
-    //     uint256 _newTime,
-    //     string memory _newDescription
-     try{const signer = await getProviderOrSigner(true);
-       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
-       const tx=await contract.addDevicesByProvider(Number(providerId), Number(deviceId), Number(memory),Number(duration), des);
-       await tx.wait();
-     } catch (e) {
-       console.log(e);
+  const getDevicesByProvider = async () => {
+    console.log("Hiii");
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data = await contract.getDeviceByProvider();
+      setDeviceDetail(data);
+      console.log(data);
+    } catch (e) {
+      console.log(e);
     }
-    
   }
+
+    const getDevicesByDeviceId = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
+      const data = await contract.getDeviceByDeviceID(deviceId);
+      console.log(data);
+      // setDeviceDetail (data);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+ 
 
   const requestProvider = async () => {
           console.log("proId");
@@ -202,16 +210,19 @@ function App() {
     
           <div class="details">
              <div class="detail-item">
-        <button class="get-button" >Get All Available devices of a Provider</button>
-        <div class="detail">All available devices of a provider</div>
-        <input placeholder="Provider ID"></input>
+        <button class="get-button" onClick={getAllDevices}>Get All devices</button>
+        <div class="detail">{allDevices}</div>
       </div>
           <div class="detail-item">
-              <button class="get-button" onClick={getRequestDetails}>Get Request Detail</button>
-              <input placeholder="Request ID" onChange={(e)=> setRequestId(e.target.value)}></input>
-        <div class="detail">Console</div>
+              <button class="get-button" onClick={getDevicesByProvider}>Get Device by Provider</button>
+        <div class="detail">{}</div>
             </div>
-              <div class="detail-item">
+             <div class="detail-item">
+              <button class="get-button" onClick={getDevicesByDeviceId}>Get Device Details Id</button>
+                          <input placeholder="Stake ID" onChange={(e)=>{setDeviceId(e.target.value)}}></input>
+        <div class="detail">{deviceDetail}</div>
+            </div>
+            {/*  <div class="detail-item">
               <button class="get-button" onClick={getTotalRequests}>Get Total request</button>
         <div class="detail">{totalRequests}</div>
             </div>
@@ -219,7 +230,7 @@ function App() {
               <button class="get-button" onClick={getTotalProvider}>Get Total Provider</button>
         <div class="detail">{totalProvider}</div>
       </div>
-          {/*<div class="detail-item">
+          <div class="detail-item">
         <button class="get-button">Instant Withdrawl</button>
         <div class="detail">{instantWithdrawl?"Allowed":` Minimum ${stakingTime} days`}</div>
           </div>
@@ -253,13 +264,14 @@ function App() {
           <div>
             <div class="input-bar">
               <label>Create/Register Provider</label>
-              <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
-              <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
-              <input type="text" placeholder="memory of system" className="clear" onChange={(e) => setMemory(e.target.value)} />
-              <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
-              <button type="submit" onClick={createProvider}>CreateProvider</button>
+              <input type="text" placeholder="Device Description EG: Device name " className="clear" onChange={(e) => setDes(e.target.value)} />
+              <input type="text" placeholder="memory of system in GB" className="clear" onChange={(e) => setMemory(e.target.value)} />
+              <input type="text" placeholder="No. of hours to engage your device Eg: 2 hrs" className="clear" onChange={(e) => setDuration(e.target.value)} />
+              <input type="text" placeholder="Rate Per hour Eg: 1 token" className="clear" onChange={(e) => setPrice(e.target.value)} />
+              
+              <button type="submit" onClick={addDevice}>CreateProvider</button>
             </div>
-                 <div class="input-bar">
+                 {/* <div class="input-bar">
               <label>Add New Device </label>
               <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
               <input type="text" placeholder="New Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
@@ -267,8 +279,8 @@ function App() {
               <input type="text" placeholder="No. of hours to engage your device" className="clear" onChange={(e) => setDuration(e.target.value)} />
               <input type="text" placeholder="Device Description" className="clear" onChange={(e) => setDes(e.target.value)} />
               <button type="submit" onClick={addNewDevice}>Add New Device</button>
-            </div>
-                 <div class="input-bar">
+            </div> */}
+                 {/* <div class="input-bar">
               <label>Request Provider</label>
               <input type="text" placeholder="Provider ID" className="clear" onChange={(e) => setProviderId(e.target.value)} />
               <input type="text" placeholder="Description" className="clear" onChange={(e) => setDes(e.target.value)} />
@@ -283,7 +295,7 @@ function App() {
               <input type="text" placeholder="Provider Device ID" className="clear" onChange={(e) => setDeviceRequestId(e.target.value)} />
               <input type="text" placeholder="Request Id" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={approveRequest}>Approve Request</button>
-            </div>
+            </div> */}
             {/*<div class="input-bar">
           string memory _description,
         uint256 _deviceId,

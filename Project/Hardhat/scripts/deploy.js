@@ -11,14 +11,13 @@ async function main() {
     console.log("Deploying contracts with the account:", deployer.address);
 
   const fileContract=await hre.ethers.getContractFactory("FileShare");
-  const tokenAddress = "0x535Da441Dd81Db80860CDf3E802eb590049439C9";
-    const fixedStake = ethers.utils.parseUnits("5");
-  const reward = ethers.utils.parseUnits("0.01");
-  const contract = await fileContract.deploy(tokenAddress,fixedStake,reward);
+  const tokenAddress = "0xcD37327f6c4870D8fc319911eCe32370B1b9f319";
+    const fixedStake = ethers.utils.parseUnits("0.5");
+  const contract = await fileContract.deploy(tokenAddress,fixedStake);
   
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0xACD8A5703c2a62DeC7a9861960033e6A2e457528
+    console.log("Contract Address", contract.address);//0xC46FC548AA6A90060D20d1868C93eCE440fe14C6
     
 
     console.log("Sleeping.....");
@@ -28,7 +27,7 @@ async function main() {
   // Verify the contract after deploying
   await hre.run("verify:verify", {
     address: contract.address,
-      constructorArguments: [tokenAddress,fixedStake,reward],
+      constructorArguments: [tokenAddress,fixedStake],
     contract: "contracts/FileShare.sol:FileShare"
   });
 }
