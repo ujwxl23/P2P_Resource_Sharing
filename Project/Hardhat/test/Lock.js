@@ -18,14 +18,18 @@ describe("FileShare", function () {
     console.log(contractAddress);
 
     await fileContract.addDevice("Intel", 30, 10, 1);
+        await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
+        await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+
     const data = await fileContract.getAllDevices();
     console.log(data)
     const device = await fileContract.getDeviceByProvider();
     console.log(device)
      await fileContract.addDevice("AMD Ryzen", 30, 10, 1);
-    const device2 = await fileContract.getDeviceByProvider();
-    console.log(device2)
+    const device2 = await fileContract.getDeviceByDeviceID();
+    console.log(device2);
   });
+
   
  
   
