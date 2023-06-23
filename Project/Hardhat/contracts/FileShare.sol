@@ -40,6 +40,8 @@ contract FileShare {
         uint256 devid;
         bool engage;
         address payable recipient;
+        uint256 requestorsID;
+        uint256 timestamp;
     }
     mapping(address => Provide) public providers;
     mapping(uint256 => DeviceDetails) public deviceDetails;
@@ -77,6 +79,7 @@ contract FileShare {
 
         allDevices.push(_description);
 
+        ++deviceID;
         DeviceDetails storage newDevice = deviceDetails[deviceID];
         newDevice.description = _description;
         newDevice.space = _space;
@@ -85,6 +88,8 @@ contract FileShare {
         newDevice.recipient = payable(msg.sender);
         newDevice.devid = deviceID;
         newDevice.tokenRate = _tokenrate;
+
+        newProvide.devid.push(deviceID);
 
         require(
             token.transferFrom(msg.sender, address(this), FIXED_STAKE),
@@ -100,7 +105,6 @@ contract FileShare {
         );
 
         emit DeviceAdded(deviceID, stake_id);
-         ++deviceID;
     }
 
     function getAllDevices() public view returns (string[] memory) {
@@ -114,13 +118,14 @@ contract FileShare {
 
     function getDeviceByDeviceID(
         uint256 _deviceID
-    ) public view returns (string memory, uint256, uint256, uint256) {
+    ) public view returns (string memory, uint256, uint256, uint256, bool) {
         DeviceDetails storage thisDevice = deviceDetails[_deviceID];
         return (
             thisDevice.description,
             thisDevice.hrs,
             thisDevice.space,
-            thisDevice.tokenRate
+            thisDevice.tokenRate,
+            thisDevice.engage
         );
     }
 
@@ -148,6 +153,7 @@ contract FileShare {
         );
 
         DeviceDetails storage thisDevice = deviceDetails[_deviceID];
+        require(thisDevice.engage == false, "The device is already engaged");
 
         for (uint256 j = 0; j < allDevices.length; j++) {
             bool same = compare(thisDevice.description, allDevices[j]);
@@ -178,12 +184,10 @@ contract FileShare {
         thisDevice.space = 0;
         thisDevice.tokenRate = 0;
 
-    //   token.transfer(msg.sender,FIXED_STAKE);
         require(
-            token.transferFrom(address(this), msg.sender, FIXED_STAKE),
+            token.transfer(msg.sender, FIXED_STAKE),
             "Stake transfer failed"
         );
-        
 
         stakes_pool[msg.sender][_stakeId] = Stake(_stakeId, 0, block.timestamp);
     }
@@ -193,38 +197,73 @@ contract FileShare {
         uint256 devID;
         address deviceOwner;
         uint256 hrsStake;
+        bool engage;
     }
     mapping(uint256 => Requestor) public requestors;
     uint256 public requestorID;
 
     event RequestAdded(uint256 indexed idOfRequestor);
 
-    // function RequestDeviceUse(uint256 _deviceID, uint256 _hrsToStake) public {
-    //     DeviceDetails storage thisDevice = deviceDetails[_deviceID];
-    //     ++requestorID;
-    //     Requestor storage newRequestor = requestors[requestorID];
-    //     newRequestor.reqID = requestorID;
-    //     newRequestor.devID = _deviceID;
-    //     newRequestor.deviceOwner = thisDevice.recipient;
-    //     newRequestor.hrsStake = _hrsToStake;
+    uint256[] ReqDetails;
 
-    //     (thisDevice.requestorsID).push(requestorID);
+    function RequestDeviceUse(uint256 _deviceID, uint256 _hrsToStake) public {
+        DeviceDetails storage thisDevice = deviceDetails[_deviceID];
+        require(thisDevice.engage == false, "The device is already engaged");
+        ++requestorID;
+        Requestor storage newRequestor = requestors[requestorID];
+        newRequestor.reqID = requestorID;
+        newRequestor.devID = _deviceID;
+        newRequestor.deviceOwner = thisDevice.recipient;
+        newRequestor.hrsStake = _hrsToStake;
+        newRequestor.engage = false;
 
-    //     require(
-    //         token.transferFrom(msg.sender, address(this), _hrsToStake),
-    //         "Transfer failed"
-    //     );
+        // (thisDevice.requestorsID).push(requestorID);
+        ReqDetails.push(_deviceID);
+        ReqDetails.push(_hrsToStake);
 
-    //     emit RequestAdded(requestorID);
-    // }
+        require(
+            token.transferFrom(
+                msg.sender,
+                address(this),
+                _hrsToStake * thisDevice.tokenRate
+            ),
+            "Transfer failed"
+        );
+
+        emit RequestAdded(requestorID);
+    }
 
     function ViewDeviceRequestByRequestor(
         address _deviceOwner,
         uint256 _reqID
-    ) public view returns (string memory, uint256, address) {
+    ) public view returns (string memory, uint256, address, bool) {
         Requestor storage thisRequestor = requestors[_reqID];
         DeviceDetails storage thisDevice = deviceDetails[thisRequestor.devID];
-        return (thisDevice.description, thisRequestor.hrsStake, _deviceOwner);
+        return (
+            thisDevice.description,
+            thisRequestor.hrsStake,
+            _deviceOwner,
+            thisRequestor.engage
+        );
+    }
+
+    function AcceptDeviceRequestByProvider(uint256 _reqID) public {
+        Provide storage thisProvide = providers[msg.sender];
+        Requestor storage thisRequestor = requestors[_reqID];
+        for (uint256 i = 0; i < (thisProvide.devid).length; i++) {
+            if (thisProvide.devid[i] == thisRequestor.devID) {
+                require(
+                    thisProvide.engage[i] == false,
+                    "The provider is already busy, no resources available."
+                );
+                thisProvide.engage[i] = true;
+                thisRequestor.engage = true;
+            }
+        }
+        DeviceDetails storage thisDevice = deviceDetails[thisRequestor.devID];
+        thisDevice.requestorsID = _reqID;
+        thisDevice.timestamp = block.timestamp;
+        thisDevice.engage = true;
     }
 }
 

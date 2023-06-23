@@ -9,7 +9,6 @@ const hre = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
     console.log("Deploying contracts with the account:", deployer.address);
-
   const fileContract=await hre.ethers.getContractFactory("FileShare");
   const tokenAddress = "0xcD37327f6c4870D8fc319911eCe32370B1b9f319";
     const fixedStake = ethers.utils.parseUnits("0.5");
@@ -17,7 +16,7 @@ async function main() {
   
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0xC46FC548AA6A90060D20d1868C93eCE440fe14C6
+    console.log("Contract Address", contract.address);//0x3f316B2D96a208C724E1f268C8270C7E073730F5
     
 
     console.log("Sleeping.....");

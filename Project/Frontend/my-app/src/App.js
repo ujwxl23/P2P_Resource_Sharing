@@ -30,7 +30,9 @@ function App() {
   async function addDevice() {
     try {
       const signer = await getProviderOrSigner(true);
-      const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+            const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
+      await tokenContract.approve(contract.address,(utils.parseEther("5")).toString())
       const tx=await contract.addDevice(des,Number(memory),Number(duration),Number(Price_per_hour));
       await tx.wait();
     } catch (e) {

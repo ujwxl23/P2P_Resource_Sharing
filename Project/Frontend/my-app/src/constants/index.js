@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x1992609735C2c95398BC9a17a79E13F54303D039";
+export const CONTRACT_ADDRESS = "0x3f316B2D96a208C724E1f268C8270C7E073730F5";
 export const abi =    [
     {
       "inputs": [
@@ -17,6 +17,38 @@ export const abi =    [
       "type": "constructor"
     },
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "idOfDevice",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "idOfStake",
+          "type": "uint256"
+        }
+      ],
+      "name": "DeviceAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "idOfRequestor",
+          "type": "uint256"
+        }
+      ],
+      "name": "RequestAdded",
+      "type": "event"
+    },
+    {
       "inputs": [],
       "name": "FIXED_STAKE",
       "outputs": [
@@ -24,6 +56,58 @@ export const abi =    [
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_deviceID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_hrsToStake",
+          "type": "uint256"
+        }
+      ],
+      "name": "RequestDeviceUse",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_deviceOwner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_reqID",
+          "type": "uint256"
+        }
+      ],
+      "name": "ViewDeviceRequestByRequestor",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -60,6 +144,30 @@ export const abi =    [
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "str1",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "str2",
+          "type": "string"
+        }
+      ],
+      "name": "compare",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
@@ -89,8 +197,18 @@ export const abi =    [
         },
         {
           "internalType": "uint256",
-          "name": "id",
+          "name": "devid",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "engage",
+          "type": "bool"
+        },
+        {
+          "internalType": "address payable",
+          "name": "recipient",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -157,13 +275,19 @@ export const abi =    [
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_provider",
+          "type": "address"
+        }
+      ],
       "name": "getDeviceByProvider",
       "outputs": [
         {
-          "internalType": "string",
+          "internalType": "string[]",
           "name": "",
-          "type": "string"
+          "type": "string[]"
         }
       ],
       "stateMutability": "view",
@@ -180,28 +304,73 @@ export const abi =    [
       "name": "providers",
       "outputs": [
         {
-          "internalType": "string",
-          "name": "description",
-          "type": "string"
-        },
+          "internalType": "address payable",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
           "internalType": "uint256",
-          "name": "space",
+          "name": "_deviceID",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "hrs",
+          "name": "_stakeId",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeDevice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestorID",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "requestors",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "reqID",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "tokenRate",
+          "name": "devID",
           "type": "uint256"
         },
         {
+          "internalType": "address",
+          "name": "deviceOwner",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "id",
+          "name": "hrsStake",
           "type": "uint256"
         }
       ],
