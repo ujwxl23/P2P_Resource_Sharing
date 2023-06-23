@@ -22,37 +22,44 @@ contract FileShare {
         require(msg.sender == owner, "Not the owner");
         _;
     }
-
     struct Provide {
+        string[] description;
+        uint256[] space;
+        uint256[] hrs;
+        uint256[] tokenRate;
+        uint256[] devid;
+        bool[] engage;
+        address payable recipient;
+    }
+
+    struct DeviceDetails {
         string description;
         uint256 space;
         uint256 hrs;
-        uint256 idDev;
         uint256 tokenRate;
-        address recipient;
+        uint256 devid;
         bool engage;
+        address payable recipient;
     }
-    mapping(address => Provide[]) public providers;
-    mapping(uint256 => Provide[]) public deviceDetails;
+    mapping(address => Provide) public providers;
+    mapping(uint256 => DeviceDetails) public deviceDetails;
+
     uint256 public deviceID;
 
-    string[] allDevices;
+    uint256 stake_id;
 
     struct Stake {
         uint256 stakeId;
         uint256 amt;
         uint256 timeStake;
     }
-
-    uint256 stake_id;
     mapping(address => uint256) private stakes_count;
     mapping(address => uint256) private rewards_earned;
     mapping(address => mapping(uint256 => Stake)) private stakes_pool;
 
-  event DeviceAdded (
-        uint256 indexed idOfDevice,
-        uint256 indexed idOfStake
-    );
+    string[] allDevices;
+
+    event DeviceAdded(uint256 indexed idOfDevice, uint256 indexed idOfStake);
 
     function addDevice(
         string memory _description,
@@ -60,29 +67,29 @@ contract FileShare {
         uint256 _hrs,
         uint256 _tokenrate
     ) public {
-        Provide memory newProvide = Provide(
-            _description,
-            _space,
-            _hrs,
-            deviceID,
-            _tokenrate,
-            msg.sender,
-            false
-        );
-        providers[msg.sender].push(newProvide);
+        Provide storage newProvide = providers[msg.sender];
+        newProvide.description.push(_description);
+        newProvide.space.push(_space);
+        newProvide.hrs.push(_hrs);
+        newProvide.engage.push(false);
+        newProvide.recipient = payable(msg.sender);
+        newProvide.tokenRate.push(_tokenrate);
 
         allDevices.push(_description);
 
-        Provide memory newDevice = Provide(
-            _description,
-            _space,
-            _hrs,
-            deviceID,
-            _tokenrate,
-            msg.sender,
-            false
+        DeviceDetails storage newDevice = deviceDetails[deviceID];
+        newDevice.description = _description;
+        newDevice.space = _space;
+        newDevice.hrs = _hrs;
+        newDevice.engage = false;
+        newDevice.recipient = payable(msg.sender);
+        newDevice.devid = deviceID;
+        newDevice.tokenRate = _tokenrate;
+
+        require(
+            token.transferFrom(msg.sender, address(this), FIXED_STAKE),
+            "Stake transfer failed"
         );
-        deviceDetails[deviceID].push(newDevice);
 
         stake_id = ++stakes_count[msg.sender];
 
@@ -93,46 +100,28 @@ contract FileShare {
         );
 
         emit DeviceAdded(deviceID, stake_id);
-        deviceID++;
-
+         ++deviceID;
     }
 
-    function getAllDevices() public view returns (string[] memory devices) {
-        devices = allDevices;
+    function getAllDevices() public view returns (string[] memory) {
+        return (allDevices);
     }
 
-    function getDeviceByProvider() public view returns (string memory desp) {
-        Provide[] storage thisProvide = providers[msg.sender];
-        for (uint256 i = 0; i < thisProvide.length; i++) {
-            if (thisProvide[i].recipient == msg.sender) {
-                desp = thisProvide[i].description;
-            }
-        }
+    function getDeviceByProvider() public view returns (string[] memory) {
+        Provide storage thisProvide = providers[msg.sender];
+        return (thisProvide.description);
     }
 
     function getDeviceByDeviceID(
         uint256 _deviceID
-    )
-        public
-        view
-        returns (
-            string memory desp,
-            uint256 hr,
-            uint256 sp,
-            uint256 tr,
-            bool eng
-        )
-    {
-        Provide[] storage thisDevice = deviceDetails[_deviceID];
-        for (uint256 i = 0; i < thisDevice.length; i++) {
-            if (thisDevice[i].recipient == msg.sender) {
-                desp = thisDevice[i].description;
-                hr = thisDevice[i].hrs;
-                sp = thisDevice[i].space;
-                tr = thisDevice[i].tokenRate;
-                eng = thisDevice[i].engage;
-            }
-        }
+    ) public view returns (string memory, uint256, uint256, uint256) {
+        DeviceDetails storage thisDevice = deviceDetails[_deviceID];
+        return (
+            thisDevice.description,
+            thisDevice.hrs,
+            thisDevice.space,
+            thisDevice.tokenRate
+        );
     }
 
     function compare(
@@ -158,44 +147,85 @@ contract FileShare {
             "Reward alredy withdrawn"
         );
 
-        Provide[] storage thisDevice = deviceDetails[_deviceID];
+        DeviceDetails storage thisDevice = deviceDetails[_deviceID];
 
-        for (uint256 i = 0; i < thisDevice.length; i++) {
-            if (thisDevice[i].recipient == msg.sender) {
-                for (uint256 j = 0; j < allDevices.length; j++) {
-                    bool same = compare(
-                        thisDevice[i].description,
-                        allDevices[j]
-                    );
-                    if (same == true) {
-                        delete allDevices[j];
-                    }
-                }
-            }
-        }
-        for (uint256 i = 0; i < thisDevice.length; i++) {
-            if (thisDevice[i].recipient == msg.sender) {
-                require(
-                    msg.sender == thisDevice[i].recipient,
-                    "Not the owner of this device"
-                );
-                delete thisDevice[i];
+        for (uint256 j = 0; j < allDevices.length; j++) {
+            bool same = compare(thisDevice.description, allDevices[j]);
+            if (same == true) {
+                delete allDevices[j];
             }
         }
 
-        stakes_pool[msg.sender][_stakeId] = Stake(_stakeId, 0, block.timestamp);
+        Provide storage thisProvide = providers[thisDevice.recipient];
+
+        for (uint256 i = 0; i < (thisProvide.description).length; i++) {
+            bool sameName = compare(
+                thisDevice.description,
+                thisProvide.description[i]
+            );
+            if (sameName == true) {
+                thisProvide.description[i] = " ";
+                thisProvide.hrs[i] = 0;
+                thisProvide.recipient = payable(address(0));
+                thisProvide.space[i] = 0;
+                thisProvide.tokenRate[i] = 0;
+            }
+        }
+
+        thisDevice.description = " ";
+        thisDevice.hrs = 0;
+        thisDevice.recipient = payable(address(0));
+        thisDevice.space = 0;
+        thisDevice.tokenRate = 0;
+
+    //   token.transfer(msg.sender,FIXED_STAKE);
         require(
             token.transferFrom(address(this), msg.sender, FIXED_STAKE),
             "Stake transfer failed"
         );
+        
+
+        stakes_pool[msg.sender][_stakeId] = Stake(_stakeId, 0, block.timestamp);
     }
 
-    struct Request {
+    struct Requestor {
+        uint256 reqID;
         uint256 devID;
-        uint256 hrsToStake;
+        address deviceOwner;
+        uint256 hrsStake;
     }
-    mapping(uint256 => Request[]) public requesters;
-    uint256 reqCount;
+    mapping(uint256 => Requestor) public requestors;
+    uint256 public requestorID;
+
+    event RequestAdded(uint256 indexed idOfRequestor);
+
+    // function RequestDeviceUse(uint256 _deviceID, uint256 _hrsToStake) public {
+    //     DeviceDetails storage thisDevice = deviceDetails[_deviceID];
+    //     ++requestorID;
+    //     Requestor storage newRequestor = requestors[requestorID];
+    //     newRequestor.reqID = requestorID;
+    //     newRequestor.devID = _deviceID;
+    //     newRequestor.deviceOwner = thisDevice.recipient;
+    //     newRequestor.hrsStake = _hrsToStake;
+
+    //     (thisDevice.requestorsID).push(requestorID);
+
+    //     require(
+    //         token.transferFrom(msg.sender, address(this), _hrsToStake),
+    //         "Transfer failed"
+    //     );
+
+    //     emit RequestAdded(requestorID);
+    // }
+
+    function ViewDeviceRequestByRequestor(
+        address _deviceOwner,
+        uint256 _reqID
+    ) public view returns (string memory, uint256, address) {
+        Requestor storage thisRequestor = requestors[_reqID];
+        DeviceDetails storage thisDevice = deviceDetails[thisRequestor.devID];
+        return (thisDevice.description, thisRequestor.hrsStake, _deviceOwner);
+    }
 }
 
 //     struct Provide {
