@@ -15,6 +15,7 @@ module.exports = {
       url: QUICKNODE_HTTP_URL,
       accounts: [PRIVATE_KEY],
     },
+   
   },
 
   etherscan: {

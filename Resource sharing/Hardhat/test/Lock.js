@@ -169,7 +169,64 @@ describe("FileShare", function () {
     await fileContract.connect(acc2).RequestDeviceUse(2,3);
     let Request = await fileContract.connect(acc1).ViewDeviceRequestByRequestor();
     console.log("Request:", Request);
-    await fileContract.connect(acc1).
+    // await fileContract.connect(acc1).
+    });
+    it("should Withdraw the device request", async () => {
+     const [owner,acc1,acc2]=await ethers.getSigners();
+ const token=await ethers.getContractFactory("FileShareToken");
+    const tokenContract = await token.deploy();
+    const file = await ethers.getContractFactory("FileShare");
+    const fixedStake = utils.parseUnits("1");
+    const fileContract = await file.deploy(await tokenContract.address,fixedStake);
+      const contractAddress = fileContract.address;
+    await tokenContract.transfer(await acc1.getAddress(), utils.parseUnits("5"));
+    await tokenContract.transfer(await acc2.getAddress(), utils.parseUnits("5"));
+    await tokenContract.approve(contractAddress, (utils.parseUnits("5")).toString());
+    await tokenContract.connect(acc1).approve(contractAddress,(utils.parseUnits("5")).toString());
+     await tokenContract.connect(acc2).approve(contractAddress,(utils.parseUnits("5")).toString());
+    await fileContract.addDevice("Intel", 30, 10, 1);
+    await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    // await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
+    // const tx = await fileContract.addDevice("Intel i9", 30, 10, 1);
+    await tokenContract.approve(contractAddress,(utils.parseUnits("3")).toString())
+    await fileContract.RequestDeviceUse(2, 5);
+      // await tokenContract.connect(acc2).approve(contractAddress, (utils.parseUnits("3")).toString())
+      // await fileContract.connect(acc2).RequestDeviceUse(2, 3);
+      await fileContract.connect(acc1).AcceptDeviceRequestByProvider(1);
+      let Request = await fileContract.getDeviceByDeviceID(2);
+      console.log(Request);
+      await fileContract.WithdrawDeviceUsebyRequestor(2, 1);
+      Request = await fileContract.getDeviceByDeviceID(2);
+      console.log(Request);
+    });
+      it("should Withdraw token to Provider", async () => {
+     const [owner,acc1,acc2]=await ethers.getSigners();
+ const token=await ethers.getContractFactory("FileShareToken");
+    const tokenContract = await token.deploy();
+    const file = await ethers.getContractFactory("FileShare");
+    const fixedStake = utils.parseUnits("1");
+    const fileContract = await file.deploy(await tokenContract.address,fixedStake);
+      const contractAddress = fileContract.address;
+    await tokenContract.transfer(await acc1.getAddress(), utils.parseUnits("5"));
+    await tokenContract.transfer(await acc2.getAddress(), utils.parseUnits("5"));
+    await tokenContract.approve(contractAddress, (utils.parseUnits("5")).toString());
+    await tokenContract.connect(acc1).approve(contractAddress,(utils.parseUnits("5")).toString());
+     await tokenContract.connect(acc2).approve(contractAddress,(utils.parseUnits("5")).toString());
+    await fileContract.addDevice("Intel", 30, 10, 1);
+    await fileContract.connect(acc1).addDevice("AMD Ryzen 9", 30, 10, 1);
+    // await fileContract.connect(acc2).addDevice("AMD Ryzen GPU", 30, 10, 1);
+    // const tx = await fileContract.addDevice("Intel i9", 30, 10, 1);
+    await tokenContract.approve(contractAddress,(utils.parseUnits("3")).toString())
+    await fileContract.RequestDeviceUse(2, 5);
+      // await tokenContract.connect(acc2).approve(contractAddress, (utils.parseUnits("3")).toString())
+      // await fileContract.connect(acc2).RequestDeviceUse(2, 3);
+        await fileContract.connect(acc1).AcceptDeviceRequestByProvider(1);
+        await fileContract.WithdrawDeviceUsebyRequestor(2, 1);
+        let amt = await tokenContract.balanceOf(await acc1.getAddress());
+        console.log(amt);
+        await fileContract.TransferEarnedTokenToProvider(2, 1);
+        amt = await tokenContract.balanceOf(await acc1.getAddress());
+        console.log(amt);
     });
 
 

@@ -3,7 +3,7 @@ import './App.css';
 import { Contract, providers, utils } from "ethers";
 import React, { useEffect, useRef, useState } from "react";
 import { CONTRACT_ADDRESS, abi, token_Contract_Address, tokenABI } from "./constants";
-
+import DetailCard from './components/DetailCard';
 import Web3Modal from "web3modal";
 function App() {
   const [des, setDes] = useState("");
@@ -27,6 +27,7 @@ function App() {
   const [stakeId, setStakeId] = useState("");
   const [engage, setEngage] = useState("");
   const [popup, setPopup] = useState(false);
+  const detailRef=useRef();
   async function addDevice() {
     try {
       const signer = await getProviderOrSigner(true);
@@ -34,7 +35,7 @@ function App() {
       const tokenContract = new Contract(token_Contract_Address, tokenABI, signer);
       let tx = await tokenContract.approve(contract.address, (utils.parseEther("5")).toString());
       await tx.wait();
-       tx=await contract.addDevice(des,Number(memory),Number(duration),Number(Price_per_hour));
+      tx=await contract.addDevice(des,Number(memory),Number(duration),utils.parseEther(Price_per_hour));
       await tx.wait();
     } catch (e) {
       console.error(e);
@@ -45,13 +46,16 @@ function App() {
       const provider = await getProviderOrSigner();
       const contract = new Contract(CONTRACT_ADDRESS, abi, provider);
       const data = await contract.getAllDevices();
+      console.log(data)
       let devices="";
       for (let i = 0; i < data.length; i++){
         if (data[i] === "")
           continue;
         devices = devices +"\""+ data[i] +"\""+ "  " ;
       }
+      detailRef.current=data;
       setAllDevices(devices);
+      setPopup(true);
     } catch (e) {
       console.log(e);
     }
@@ -79,7 +83,7 @@ function App() {
       setDes(data[0]);
       setDuration((data[1]).toString() + " hrs")
       setMemory((data[2]).toString() + " GB")
-      setPrice((data[3]).toString()+" token Rate per hour");
+      setPrice(utils.formatEther((data[3]).toString())+" token Rate per hour");
       setEngage(data[4]?"Device In Use":"Device Not in use");
       setPopup(true);
     } catch (e) {
@@ -136,7 +140,7 @@ function App() {
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       console.log(contract.address);
       setLoading(true);
-    const tx = await contract.AcceptDeviceRequestByProvider(Number(deviceId));
+    const tx = await contract.AcceptDeviceRequestByProvider(Number(requestId));
       await tx.wait();
       setLoading(false);
       window.alert("Request Approved");
@@ -145,6 +149,49 @@ function App() {
       console.log(e);
     }
     
+  }
+  const TransferTokenToRequestor= async () => {
+    try {
+      const signer = await getProviderOrSigner(true);
+      const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      console.log(contract.address);
+      setLoading(true);
+    const tx = await contract.TransferTokenToRequestor(Number(requestId));
+      await tx.wait();
+      setLoading(false);
+      window.alert("Token Transfered Successfully");
+    }
+    catch (e) {
+      console.log(e.message);
+    }
+    
+  }
+  const TransferEarnedTokenToProvider= async () => {
+    try {
+      const signer = await getProviderOrSigner(true);
+      const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      console.log(contract.address);
+      setLoading(true);
+    const tx = await contract.TransferEarnedTokenToProvider(Number(deviceId),Number(requestId));
+      await tx.wait();
+      setLoading(false);
+      window.alert("Token Transfered Successfully");
+    }
+    catch (e) {
+      console.log(e.message);
+    }
+  }
+
+  const WithdrawDeviceUsebyRequestor = async () => {
+    const signer = await getProviderOrSigner(true);
+    const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      console.log("contract.address");
+    setLoading(true);
+    const tx = await contract.WithdrawDeviceUsebyRequestor(Number(deviceId), Number(requestId));
+    console.log(tx);
+      // await tx.wait();
+      // setLoading(false);
+      // window.alert("Request Withdrawn");
   }
     const getTotalProvider = async () => {
     try {
@@ -335,9 +382,28 @@ function App() {
             </div>
                <div class="input-bar">
               <label>Accept Request</label>
-              <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={AcceptDeviceRequestByProvider}>Accept Request</button>
             </div>
+              <div class="input-bar">
+              <label>Withdraw Request</label>
+              <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
+              <button type="submit" onClick={WithdrawDeviceUsebyRequestor}>Withdraw Request</button>
+            </div>
+               <div class="input-bar">
+              <label>Withdraw Requestor Token</label>
+              <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
+              <button type="submit" onClick={TransferTokenToRequestor}>Withdraw Requestor Tokens</button>
+            </div>
+             <div class="input-bar">
+              <label>Withdraw Requestor Token</label>
+              <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
+              <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
+              <button type="submit" onClick={TransferEarnedTokenToProvider}>Withdraw Provider Tokens</button>
+            </div>
+            {popup?
+              <DetailCard value={detailRef} />:<></>}
           </div>
         </div>
       </div>

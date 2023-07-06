@@ -1,5 +1,5 @@
-export const CONTRACT_ADDRESS = "0xff402c3DB37C185B9054986db3984C0Df68DfC4A";
-export const abi =    [
+export const CONTRACT_ADDRESS = "0xBf4D29576980af04d53b13A7198Ed70097a9b7be";
+export const abi =     [
     {
       "inputs": [
         {
@@ -139,7 +139,7 @@ export const abi =    [
       ],
       "name": "TransferEarnedTokenToProvider",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -158,7 +158,7 @@ export const abi =    [
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -187,7 +187,7 @@ export const abi =    [
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -200,7 +200,7 @@ export const abi =    [
       ],
       "name": "TransferTokenToRequestor",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

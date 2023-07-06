@@ -351,15 +351,14 @@ contract FileShare {
     function TransferEarnedTokenToProvider(
         uint256 _deviceid,
         uint256 _requestID
-    ) public payable {
+    ) public {
         Request storage thisRequest = requests[_requestID];
         DeviceDetails storage thisDevice = deviceDetails[_deviceid];
         uint256 lastOfTimestampArry = (thisRequest.paid_token_timestamps)
             .length - 1;
         uint256 timeElapsed = block.timestamp -
             thisRequest.paid_token_timestamps[lastOfTimestampArry];
-        uint256 noOfHours = timeElapsed / 3600;
-        uint256 reward = noOfHours * thisDevice.tokenRate;
+        uint256 reward =  (timeElapsed * thisDevice.tokenRate) / 3600;
 
         token.transfer(msg.sender, reward);
 
@@ -376,7 +375,7 @@ contract FileShare {
         uint256 _deviceid,
         address _provider,
         uint256 _requestid
-    ) public payable returns (uint256 Reward) {
+    ) public returns (uint256 Reward) {
         Provide storage thisProvide = providers[_provider];
         DeviceDetails storage thisDevice = deviceDetails[_deviceid];
         Request storage thisRequest = requests[_requestid];
@@ -419,7 +418,7 @@ contract FileShare {
 
     function TransferTokenFromRequestorInternal(
         uint256 _requestorID
-    ) public payable returns (uint256) {
+    ) public view returns (uint256) {
         Request storage thisRequest = requests[_requestorID];
         DeviceDetails storage thisDevice = deviceDetails[thisRequest.devID];
         uint256 timeElapsed = block.timestamp -
@@ -457,11 +456,11 @@ contract FileShare {
 
         thisRequest.engage = false;
         thisRequest.request_end = true;
-
+        thisDevice.engage=false;
         emit RewardEarned(providerToken, requestorToken);
     }
 
-    function TransferTokenToRequestor(uint256 _reqID) public payable {
+    function TransferTokenToRequestor(uint256 _reqID) public  {
         Requestor storage thisRequestor = requestors[msg.sender];
         Request storage thisRequest = requests[_reqID];
         require(
