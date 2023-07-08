@@ -16,7 +16,7 @@ async function main() {
   const contract=await TokenContract.deploy();
   await contract.deployed();
 
-    console.log("Contract Address", contract.address);//0xcD37327f6c4870D8fc319911eCe32370B1b9f319
+    console.log("Contract Address", contract.address);//0x5Af814cB328B79f11b5dBCe13Ec8325288b86ac7
     
 
     console.log("Sleeping.....");
