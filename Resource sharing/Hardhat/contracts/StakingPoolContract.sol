@@ -96,8 +96,8 @@ contract StakingPoolContract is ReentrancyGuard {
         return (thisProvide.stakeamount, thisProvide.stakeids);
     }
 
-    function getTotalStakeByProvider(address staker) external view returns (uint256) {
-        StakeProvide storage thisProvide = providers[staker];
+    function getTotalStakeByProvider() external view returns (uint256) {
+        StakeProvide storage thisProvide = providers[msg.sender];
         uint256 sumStake;
         for (uint256 i = 0; i < (thisProvide.stakeamount).length; i++) {
             sumStake = sumStake + thisProvide.stakeamount[i];
@@ -142,22 +142,36 @@ contract StakingPoolContract is ReentrancyGuard {
         );
     }
 
-    function withdrawReward(uint256 amount) external nonReentrant {
-        require(rewards_ewarned[msg.sender] > 0, "No Rewards Earned");
+    function withdrawReward(
+        uint256 amount,
+        address _staker
+    ) external nonReentrant {
+        require(rewards_ewarned[_staker] > 0, "No Rewards Earned");
         require(
-            amount <= rewards_ewarned[msg.sender],
+            amount <= rewards_ewarned[_staker],
             "It is more than current reward earned."
         );
-
-        rewards_ewarned[msg.sender] -= amount;
-
-        require(
-            token.transfer(msg.sender, amount),
-            "Rewards withdrawal failed"
-        );
-
-        emit RewardsWithdrawn(msg.sender, amount);
+        rewards_ewarned[_staker] -= amount;
+        require(token.transfer(_staker, amount), "Rewards withdrawal failed");
+        emit RewardsWithdrawn(_staker, amount);
     }
+
+    // function withdrawReward(uint256 amount) external nonReentrant {
+    //     require(rewards_ewarned[msg.sender] > 0, "No Rewards Earned");
+    //     require(
+    //         amount <= rewards_ewarned[msg.sender],
+    //         "It is more than current reward earned."
+    //     );
+
+    //     rewards_ewarned[msg.sender] -= amount;
+
+    //     require(
+    //         token.transfer(msg.sender, amount),
+    //         "Rewards withdrawal failed"
+    //     );
+
+    //     emit RewardsWithdrawn(msg.sender, amount);
+    // }
 
     function calculateRewardPerStake(
         address staker,

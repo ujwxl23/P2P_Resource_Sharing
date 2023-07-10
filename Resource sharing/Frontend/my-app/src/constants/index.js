@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x8D836A6C7A8648B60356A2560a99e41ed9cB148B";
+export const CONTRACT_ADDRESS = "0xbA1704be8D19e939Ef08AFffD68f17f9Aa6fE950";
 export const abi = [
     {
       "inputs": [
@@ -138,7 +138,7 @@ export const abi = [
       ],
       "name": "TransferEarnedTokenToProvider",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -157,7 +157,7 @@ export const abi = [
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -181,7 +181,7 @@ export const abi = [
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -194,7 +194,7 @@ export const abi = [
       ],
       "name": "TransferTokenToRequestor",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -599,7 +599,7 @@ export const abi = [
       "type": "function"
     }
   ];
-  export const APYCONTRACT_ADDRESS = "0x541d439F6C1988d2BE0d564A2360ab8e68E9D74a";
+  export const APYCONTRACT_ADDRESS = "0x693Ee1A5ECD3a43DB9878b519EAa5eD603E90A8b";
 export const abiAPY =  [
     {
       "inputs": [
@@ -997,6 +997,11 @@ export const abiAPY =  [
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_staker",
+          "type": "address"
         }
       ],
       "name": "withdrawReward",
@@ -1023,7 +1028,7 @@ export const abiAPY =  [
       "type": "function"
     }
   ];
-export const token_Contract_Address = "0x5Af814cB328B79f11b5dBCe13Ec8325288b86ac7";
+export const token_Contract_Address = "0x30233906DF257f6E712094C4961E9f375ea9FCbD";
 export const tokenABI = [
     {
       "inputs": [],

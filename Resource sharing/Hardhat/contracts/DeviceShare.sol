@@ -6,7 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IStakingPool {
-    function getTotalStakeByProvider(address) external view returns (uint256);
+    function getTotalStakeByProvider() external view returns (uint256);
+
+    function withdrawReward(uint256 amount, address _staker) external;
 }
 
 contract DeviceShare {
@@ -40,7 +42,6 @@ contract DeviceShare {
         uint256[] devid;
         bool[] engage;
         address payable recipient;
-        // uint256[] stakeids;
         uint256[] reqDetailsPerDevice;
     }
 
@@ -79,14 +80,16 @@ contract DeviceShare {
     uint256[] hrsDevices;
     uint256[] tokenrateDevices;
     uint256[] deviceidDevices;
+
     event DeviceAdded(uint256 indexed idOfDevice);
+
     function addDevice(
         string memory _description,
         uint256 _space,
         uint256 _hrs,
         uint256 _tokenrate
     ) external {
-        uint256 stakedAmount = poolContract.getTotalStakeByProvider(msg.sender);
+        uint256 stakedAmount = poolContract.getTotalStakeByProvider();
         require(stakedAmount >= FIXED_STAKE, "Insufficient stake");
         Provide storage newProvide = providers[msg.sender];
         newProvide.description.push(_description);
@@ -95,6 +98,7 @@ contract DeviceShare {
         newProvide.engage.push(false);
         newProvide.recipient = payable(msg.sender);
         newProvide.tokenRate.push(_tokenrate);
+
         allDevices.push(_description);
         spaceDevices.push(_space);
         hrsDevices.push(_hrs);
@@ -126,6 +130,7 @@ contract DeviceShare {
 
         emit DeviceAdded(deviceID);
     }
+
     function getAllDevices()
         public
         view
@@ -270,7 +275,8 @@ contract DeviceShare {
     event RequestAdded(uint256 indexed idOfRequest);
 
     function RequestDeviceUse(uint256 _deviceID, uint256 _hrsToStake) external {
-        uint256 stakedAmountByRequestor = poolContract.getTotalStakeByProvider(msg.sender);
+        uint256 stakedAmountByRequestor = poolContract
+            .getTotalStakeByProvider();
         require(stakedAmountByRequestor >= FIXED_STAKE, "Insufficient stake");
         DeviceDetails storage thisDevice = deviceDetails[_deviceID];
         require(thisDevice.engage == false, "The device is already engaged");
@@ -341,7 +347,7 @@ contract DeviceShare {
     function TransferEarnedTokenToProvider(
         uint256 _deviceid,
         uint256 _requestID
-    ) public payable {
+    ) external {
         Request storage thisRequest = requests[_requestID];
         DeviceDetails storage thisDevice = deviceDetails[_deviceid];
         uint256 lastOfTimestampArry = (thisRequest.paid_token_timestamps)
@@ -350,16 +356,13 @@ contract DeviceShare {
             thisRequest.paid_token_timestamps[lastOfTimestampArry];
         uint256 noOfHours = timeElapsed / 3600;
         uint256 reward = noOfHours * thisDevice.tokenRate;
-
+        poolContract.withdrawReward(reward, msg.sender);
         thisRequest.paid_tokens_array.push(reward);
         thisRequest.paid_token_timestamps.push(block.timestamp);
-
         Requestor storage thisRequestor = requestors[thisRequest.reqAddress];
         thisRequestor.paidTokensTotal = thisRequestor.paidTokensTotal - reward;
-
         emit EarnedRewardByProvider(reward);
     }
-
     function TransferTokenToProviderInternal(
         uint256 _deviceid,
         uint256 _requestid

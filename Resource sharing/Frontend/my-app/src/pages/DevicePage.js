@@ -36,7 +36,7 @@ function DevicePage() {
     try {
       const signer = await getProviderOrSigner(true);
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
-      
+      console.log(contract.address)
       const tx=await contract.addDevice(des,Number(memory),Number(duration),utils.parseEther(Price_per_hour));
       await tx.wait();
     } catch (e) {
@@ -103,9 +103,9 @@ function DevicePage() {
       const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       console.log(contract.address);
       setLoading(true);
-      await tx.wait();
      const tx = await contract.RequestDeviceUse(Number(deviceId),Number(requiredDuration));
-    await tx.wait();
+      await tx.wait();
+      setLoading(false);
     }
     catch (e) {
       console.log(e);
@@ -329,7 +329,7 @@ function DevicePage() {
             </div>
              <div class="detail-item">
               <button class="get-button" onClick={getDevicesByDeviceId}>Get Device Details Id</button>
-                          <input placeholder="Stake ID" onChange={(e)=>{setDeviceId(e.target.value)}}></input>
+                          <input placeholder="device ID" onChange={(e)=>{setDeviceId(e.target.value)}}></input>
               <div class="detail">{deviceDetail}</div>
 
               
@@ -381,13 +381,13 @@ function DevicePage() {
               <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={WithdrawDeviceUsebyRequestor}>Withdraw Request</button>
             </div>
-               <div class="input-bar">
+               {/* <div class="input-bar">
               <label>Withdraw Requestor Token</label>
               <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={TransferTokenToRequestor}>Withdraw Requestor Tokens</button>
-            </div>
+            </div> */}
              <div class="input-bar">
-              <label>Withdraw Requestor Token</label>
+              <label>Withdraw Provider Reward Token</label>
               <input type="text" placeholder="Device ID" className="clear" onChange={(e) => setDeviceId(e.target.value)} />
               <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={TransferEarnedTokenToProvider}>Withdraw Provider Tokens</button>

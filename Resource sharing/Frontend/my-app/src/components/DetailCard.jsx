@@ -13,7 +13,7 @@ const DetailCard = (data) => {
   function setData() {
     for (var col = 0; col < values[0].length; col++) {
                 console.log(values[1][col].toString(),"space")
-                if (values[0][col] === "")
+                if (values[0][col] === "" || values[1][col].toString()==="0")
                   continue;
                 var prop = {
                   des: values[0][col],

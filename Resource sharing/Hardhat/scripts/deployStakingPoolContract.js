@@ -10,24 +10,24 @@ async function main() {
   const [deployer] = await ethers.getSigners();
     console.log("Deploying contracts with the account:", deployer.address);
 
-  const APYContract=await hre.ethers.getContractFactory("StakingPoolContract");
+  // const APYContract=await hre.ethers.getContractFactory("StakingPoolContract");
   // initial 10% monthly interest
 
   const tokenAddress = "0x5Af814cB328B79f11b5dBCe13Ec8325288b86ac7";
   const fixedAPY = 12;
   const minDays = 30;
-  const contract=await APYContract.deploy(tokenAddress,fixedAPY,minDays);
-  await contract.deployed();
+  // const contract=await APYContract.deploy(tokenAddress,fixedAPY,minDays);
+  // await contract.deployed();
 
-  console.log("Contract Address", contract.address);//0x541d439F6C1988d2BE0d564A2360ab8e68E9D74a
+  // console.log("Contract Address", contract.address);//0x32b7f650f855c4DEB407Cfb8A218025c2ef64F50
   
-   console.log("Sleeping.....");
-  // Wait for etherscan to notice that the contract has been deployed
-  await sleep(40000);
+  //  console.log("Sleeping.....");
+  // // Wait for etherscan to notice that the contract has been deployed
+  // await sleep(40000);
 
   // Verify the contract after deploying
   await hre.run("verify:verify", {
-    address: contract.address,
+    address: "0x32b7f650f855c4DEB407Cfb8A218025c2ef64F50",
       constructorArguments: [tokenAddress,fixedAPY,minDays],
     contract: "contracts/StakingPoolContract.sol:StakingPoolContract"
   });
