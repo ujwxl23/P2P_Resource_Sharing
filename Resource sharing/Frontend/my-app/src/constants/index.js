@@ -1,5 +1,5 @@
-export const CONTRACT_ADDRESS = "0xbA1704be8D19e939Ef08AFffD68f17f9Aa6fE950";
-export const abi = [
+export const CONTRACT_ADDRESS = "0x482811ea7d936Be7D8DD4c204c9A309A6a7e56D9";
+export const abi =[
     {
       "inputs": [
         {
@@ -158,30 +158,6 @@ export const abi = [
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_deviceid",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_requestid",
-          "type": "uint256"
-        }
-      ],
-      "name": "TransferTokenToProviderInternal",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "Reward",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -597,9 +573,28 @@ export const abi = [
       ],
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "rewardEarnedByProvider",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ];
-  export const APYCONTRACT_ADDRESS = "0x693Ee1A5ECD3a43DB9878b519EAa5eD603E90A8b";
+  export const APYCONTRACT_ADDRESS = "0xFae457525aa219b1F3505E6C40aC43168186f068";
 export const abiAPY =  [
     {
       "inputs": [
@@ -755,6 +750,24 @@ export const abiAPY =  [
         }
       ],
       "name": "changeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "requestor",
+          "type": "address"
+        }
+      ],
+      "name": "deposit",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -943,6 +956,19 @@ export const abiAPY =  [
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_deviceContract",
+          "type": "address"
+        }
+      ],
+      "name": "setDeviceShareContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "new_FIXED_APY",
           "type": "uint256"
@@ -974,6 +1000,29 @@ export const abiAPY =  [
     {
       "inputs": [],
       "name": "toggleWithdrawlInstantOrMonthly",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_add",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_reward",
+          "type": "bool"
+        }
+      ],
+      "name": "transferFromContract",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

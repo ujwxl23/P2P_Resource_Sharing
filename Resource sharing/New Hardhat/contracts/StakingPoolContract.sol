@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "hardhat/console.sol";
 
 contract StakingPoolContract is ReentrancyGuard {
     uint256 private FIXED_APY;
@@ -10,11 +11,10 @@ contract StakingPoolContract is ReentrancyGuard {
     uint256 public MINIMUM_STAKING_TIME; // seconds in a month (30 days)
     bool public instant_withdrawl_allowed = false;
     address private owner;
-
+    address deviceContract;
     mapping(address => mapping(uint256 => Stake)) private stakes_pool;
     mapping(address => uint256) private stakes_count;
     mapping(address => uint256) private rewards_ewarned;
-
     struct Stake {
         uint256 id;
         uint256 amount;
@@ -25,11 +25,8 @@ contract StakingPoolContract is ReentrancyGuard {
         uint256[] stakeids;
         uint256[] stakeamount;
     }
-
     mapping(address => StakeProvide) private providers;
-
     IERC20 private token;
-
     event StakeDeposited(
         address indexed staker,
         uint256 indexed id,
@@ -61,6 +58,7 @@ contract StakingPoolContract is ReentrancyGuard {
         _;
     }
 
+
     function depositStake(
         uint256 amount
     ) external nonReentrant returns (uint256) {
@@ -78,7 +76,6 @@ contract StakingPoolContract is ReentrancyGuard {
             amount,
             block.timestamp
         );
-
         StakeProvide storage newProvide = providers[msg.sender];
         newProvide.stakeamount.push(amount);
         newProvide.stakeids.push(stake_id);
@@ -96,11 +93,11 @@ contract StakingPoolContract is ReentrancyGuard {
         return (thisProvide.stakeamount, thisProvide.stakeids);
     }
 
-    function getTotalStakeByProvider(address staker) external view returns (uint256) {
-        StakeProvide storage thisProvide = providers[staker];
+    function getTotalStakeByProvider(address staker) public view returns (uint256) {
         uint256 sumStake;
-        for (uint256 i = 0; i < (thisProvide.stakeamount).length; i++) {
-            sumStake = sumStake + thisProvide.stakeamount[i];
+        for (uint256 i = 1; i <=stakes_count[staker]; i++) {
+            sumStake = sumStake + stakes_pool[staker][i].amount;
+                   
         }
         return (sumStake);
     }
@@ -155,7 +152,6 @@ contract StakingPoolContract is ReentrancyGuard {
         require(token.transfer(_staker, amount), "Rewards withdrawal failed");
         emit RewardsWithdrawn(_staker, amount);
     }
-
     // function withdrawReward(uint256 amount) external nonReentrant {
     //     require(rewards_ewarned[msg.sender] > 0, "No Rewards Earned");
     //     require(
@@ -237,4 +233,36 @@ contract StakingPoolContract is ReentrancyGuard {
     function set_STAKING_TIME(uint256 time, uint256 id) external {
         stakes_pool[msg.sender][id].timestamp = time;
     }
+    function setDeviceShareContract(address _deviceContract)external onlyOwner{
+    deviceContract=_deviceContract;
 }
+    function deposit(uint amount,address requestor)external{
+        require(msg.sender==deviceContract,"Can only be called from deviceShare Contract");
+          for(uint i=1;i<=stakes_count[requestor];i++){
+            Stake storage stake=stakes_pool[requestor][i];
+            if(stake.amount>=amount)
+
+{
+    stakes_pool[requestor][i]=Stake(stake.id,stake.amount-amount,stake.timestamp);     
+             break;}
+            else
+            {
+                amount=amount-stake.amount;
+                 stake.amount=0;
+            }
+        }
+        
+    }
+
+    function transferFromContract(uint amt,address _add,bool _reward)external{
+        require(msg.sender==deviceContract,"Can only be called from deviceShare Contract");
+        if(_reward)
+        token.transfer(_add,amt);
+        else{
+            console.log(amt);
+        Stake storage stake=stakes_pool[_add][1];
+        stake.amount+=amt;
+        }
+    }
+}
+

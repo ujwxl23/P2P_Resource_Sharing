@@ -29,7 +29,7 @@ function DevicePage() {
   const [popupAllDevices, setPopupAllDevices] = useState(false);
   const [popupProviderDevices, setPopupProviderDevices] = useState(false);
     const [popupRequestDevices, setPopupRequestDevices] = useState(false);
-  const [popup,setPopup] = useState(false);
+  const [popup, setPopup] = useState(false);
   const detailRef = useRef();
   
   async function addDevice() {
@@ -40,7 +40,10 @@ function DevicePage() {
       const tx=await contract.addDevice(des,Number(memory),Number(duration),utils.parseEther(Price_per_hour));
       await tx.wait();
     } catch (e) {
-      console.error(e);
+     
+      const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
   const getAllDevices = async () => {
@@ -51,7 +54,9 @@ function DevicePage() {
       detailRef.current=data;
       setPopupAllDevices(true);
     } catch (e) {
-      console.log(e);
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
 
@@ -66,7 +71,9 @@ function DevicePage() {
       setPopupProviderDevices(true);
       detailRef.current = data;
     } catch (e) {
-      console.log(e);
+      const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
     
@@ -83,7 +90,9 @@ function DevicePage() {
       setEngage(data[4]?"Device In Use":"Device Not in use");
       setPopup(true);
     } catch (e) {
-      console.log(e);
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
     }
   
@@ -94,7 +103,9 @@ function DevicePage() {
     const tx =await contract.removeDevice(Number(deviceId));
      await tx.wait();
    } catch (e) {
-     console.error(e);
+      const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
   const requestProvider = async () => {
@@ -108,7 +119,9 @@ function DevicePage() {
       setLoading(false);
     }
     catch (e) {
-      console.log(e);
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
     
   }
@@ -121,7 +134,9 @@ function DevicePage() {
       detailRef.current = data;
       setPopupRequestDevices(true);
     } catch (e) {
-      console.log(e);
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
 
@@ -137,10 +152,14 @@ function DevicePage() {
       window.alert("Request Approved");
     }
     catch (e) {
-      console.log(e);
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
     
   }
+
+
   const TransferTokenToRequestor= async () => {
     try {
       const signer = await getProviderOrSigner(true);
@@ -153,7 +172,9 @@ function DevicePage() {
       window.alert("Token Transfered Successfully");
     }
     catch (e) {
-      console.log(e.message);
+      const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
     
   }
@@ -169,17 +190,25 @@ function DevicePage() {
       window.alert("Token Transfered Successfully");
     }
     catch (e) {
-      console.log(e.message);
+      const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
     }
   }
 
   const WithdrawDeviceUsebyRequestor = async () => {
-    const signer = await getProviderOrSigner(true);
+    try{const signer = await getProviderOrSigner(true);
     const contract = new Contract(CONTRACT_ADDRESS, abi, signer);
       console.log("contract.address");
     setLoading(true);
     const tx = await contract.WithdrawDeviceUsebyRequestor(Number(deviceId), Number(requestId));
-    console.log(tx);
+      console.log(tx);
+    }
+    catch (e) {
+       const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
+    }
       // await tx.wait();
       // setLoading(false);
       // window.alert("Request Withdrawn");
@@ -392,6 +421,7 @@ function DevicePage() {
               <input type="text" placeholder="Request ID" className="clear" onChange={(e) => setRequestId(e.target.value)} />
               <button type="submit" onClick={TransferEarnedTokenToProvider}>Withdraw Provider Tokens</button>
             </div>
+              
             {popupAllDevices ?
               <>
                  <DetailCard value={detailRef} />
@@ -412,7 +442,8 @@ function DevicePage() {
               <button onClick={()=>setPopupRequestDevices(false)} className="btn">close</button>
               </>
              
-              :<></>}
+              : <></>}
+            
           </div>
         </div>
       </div>

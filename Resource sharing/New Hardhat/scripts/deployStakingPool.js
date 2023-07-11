@@ -19,7 +19,7 @@ async function main() {
   const contract=await APYContract.deploy(tokenAddress,fixedAPY,minDays);
   await contract.deployed();
 
-  console.log("Contract Address", contract.address);//0x693Ee1A5ECD3a43DB9878b519EAa5eD603E90A8b
+  console.log("Contract Address", contract.address);//0xFae457525aa219b1F3505E6C40aC43168186f068
   
    console.log("Sleeping.....");
   // Wait for etherscan to notice that the contract has been deployed

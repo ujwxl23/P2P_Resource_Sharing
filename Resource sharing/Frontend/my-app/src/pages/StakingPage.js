@@ -25,9 +25,24 @@ function App() {
   const [newDate, setNewDate] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
   const [totalStakedAmount, setTotalStakeAmount] = useState("");
+    const [deviceShare, setDeviceShare] = useState("");
+
   const web3ModalRef = useRef();
 
-
+  const setDeviceShareContract = async () => {
+    try {
+     const signer = await getProviderOrSigner(true);
+      const contract = new Contract(APYCONTRACT_ADDRESS, abiAPY, signer);
+      const tx = await contract.setDeviceShareContract(deviceShare);
+      await tx.wait();
+    }
+    catch (e) {
+      console.log(e);
+        const message = e.message.toString();
+      const reason = message.slice(message.indexOf("\""),message.indexOf(","));
+      window.alert(reason);
+      }
+  }
     const getTotalStakeAmount = async () => {
       try {
         const provider = await getProviderOrSigner();
@@ -81,13 +96,12 @@ try{   const signer = await getProviderOrSigner(true);
         const address=await signer.getAddress();
     const APYcontract = new Contract(APYCONTRACT_ADDRESS, abiAPY, provider);
         const tx = await APYcontract.getStakeAmount(address, stakeId);
-        ;
+        console.log(tx);
       setStakedAmount((utils.formatEther(tx.toString())).toString()); 
       console.log(tx.toString());
     } catch (e) {
       console.log(e);
     }
-
   }
   const getStakeTimestamp = async () => {
       try {
@@ -496,7 +510,13 @@ const getProviderOrSigner = async (needSigner = false) => {
             <input type="text" placeholder="Stake Id Transaction Id Eg. 1" onChange={(e) =>setStakeId(e.target.value) } className="clear"/>
             <input type="date" placeholder="New Staking Time New time of previous Transactions" onChange={(e) => setNewDate(e.target.value)} className="clear"/>
         <button type="submit" onClick={update_Staking_Time} disabled={loading}>set_STAKING_TIME</button>
-      </div>
+          </div>
+          
+          {isOwner? <div class="input-bar">
+              <label>Set Device Contract(OnlyOwner)</label>
+              <input type="text" placeholder="Address" className="clear" onChange={(e) => setDeviceShare(e.target.value)} />
+              <button type="submit" onClick={setDeviceShareContract}>Withdraw Provider Tokens</button>
+            </div>:<></>}
         </div>
   </div>
     </div>
